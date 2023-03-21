@@ -1,0 +1,31 @@
+FROM elixir:1.14
+
+ARG MAIN_APP
+
+WORKDIR /home/app
+RUN chmod -R 777 .
+
+# set build ENV
+ENV MIX_ENV=dev
+
+RUN apt-get update
+
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y nodejs
+
+RUN apt-get install inotify-tools -y
+RUN apt-get install -y dos2unix
+
+RUN mix local.hex --force --if-missing
+
+RUN mix local.rebar --force
+
+RUN mix archive.install hex phx_new 1.6.2 --force
+
+COPY entrypoint_dev.sh /home/entrypoint_dev.sh
+
+RUN dos2unix /home/entrypoint_dev.sh
+
+RUN chmod 777 /home/entrypoint_dev.sh
+
+CMD ["/home/entrypoint_dev.sh"]
