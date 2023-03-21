@@ -20,7 +20,7 @@ defmodule ChatElixir.MixProject do
   def application do
     [
       mod: {ChatElixir.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:httpoison, :logger, :runtime_tools]
     ]
   end
 
@@ -48,7 +48,8 @@ defmodule ChatElixir.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.5"}
+      {:plug_cowboy, "~> 2.5"},
+      {:httpoison, "~> 2.0"}
     ]
   end
 

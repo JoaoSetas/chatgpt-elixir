@@ -35,7 +35,7 @@ docker-compose exec phoenix_dev bash
 
 Connect to the iex with 
 ```BASH
-docker-compose -f docker-compose.phoenix.yml exec phoenix_dev iex --sname console --cookie monster --remsh cookie
+docker-compose exec phoenix_dev iex --sname console --cookie monster --remsh cookie
 ```
 To debug in the iex put this in your code to break 
 ```elixir
