@@ -8,12 +8,14 @@ defmodule ChatElixir.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Start the Ecto repository
-      ChatElixir.Repo,
       # Start the Telemetry supervisor
       ChatElixirWeb.Telemetry,
+      # Start the Ecto repository
+      ChatElixir.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: ChatElixir.PubSub},
+      # Start Finch
+      {Finch, name: ChatElixir.Finch},
       # Start the Endpoint (http/https)
       ChatElixirWeb.Endpoint
       # Start a worker by calling: ChatElixir.Worker.start_link(arg)

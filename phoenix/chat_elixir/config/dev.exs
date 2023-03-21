@@ -6,6 +6,7 @@ config :chat_elixir, ChatElixir.Repo,
   password: System.get_env("POSTGRES_PASSWORD"),
   database: System.get_env("POSTGRES_DATABASE"),
   hostname: System.get_env("POSTGRES_HOST"),
+  stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
@@ -22,10 +23,10 @@ config :chat_elixir, ChatElixirWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "lB2e4DZ8BYZb99/6oPLeGb2h30T4LV4TvbvO8Jad7e/xSSqdlUJa2R8eEG9xv1p8",
+  secret_key_base: "5jf9DOU0rbTRR3cnbZbyb7DF7MeKQSkFPpDfNQAxcKf3Jan/Hy3CjtVXSdevhTc7",
   watchers: [
-    # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support
@@ -36,7 +37,6 @@ config :chat_elixir, ChatElixirWeb.Endpoint,
 #
 #     mix phx.gen.cert
 #
-# Note that this task requires Erlang/OTP 20 or later.
 # Run `mix help phx.gen.cert` for more information.
 #
 # The `http:` config above can be replaced with:
@@ -58,10 +58,12 @@ config :chat_elixir, ChatElixirWeb.Endpoint,
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/chat_elixir_web/(live|views)/.*(ex)$",
-      ~r"lib/chat_elixir_web/templates/.*(eex)$"
+      ~r"lib/chat_elixir_web/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
+
+# Enable dev routes for dashboard and mailbox
+config :chat_elixir, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
@@ -72,3 +74,6 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Disable swoosh api client as it is only required for production adapters.
+config :swoosh, :api_client, false

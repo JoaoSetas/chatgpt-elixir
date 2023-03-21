@@ -8,8 +8,8 @@ import Config
 config :chat_elixir, ChatElixir.Repo,
   username: "postgres",
   password: "postgres",
-  database: "chat_elixir_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "localhost",
+  database: "chat_elixir_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
@@ -17,14 +17,17 @@ config :chat_elixir, ChatElixir.Repo,
 # you can enable the server option below.
 config :chat_elixir, ChatElixirWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "VNHWAcUe/zb9y3xcbLO5hanafmObqsbG/b1s9YX6UW14CKLNWvlk6DYaIQIMhxej",
+  secret_key_base: "zvN3+b+EEWu72JHV79f/WEExUVrUg2vBMezeYXnzKbwaRcN+fa/len+EcdHOusP5",
   server: false
 
 # In test we don't send emails.
 config :chat_elixir, ChatElixir.Mailer, adapter: Swoosh.Adapters.Test
 
+# Disable swoosh api client as it is only required for production adapters.
+config :swoosh, :api_client, false
+
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
