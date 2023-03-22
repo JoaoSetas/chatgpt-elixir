@@ -1,5 +1,55 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* This file is for your main application CSS */
+@layer base {
+    h1 {
+      @apply text-2xl;
+      @apply font-bold;
+      @apply pb-4;
+      @apply pt-8;
+      @apply text-center;
+    }
+    h2 {
+      @apply text-xl;
+      @apply font-bold;
+      @apply pb-2;
+      @apply pt-4;
+    }
+    p {
+        @apply text-justify;
+        @apply pt-2;
+    }
+    pre {
+        background: #f4f4f4;
+        border: 1px solid #ddd;
+        border-left: 3px solid #f36d33;
+        page-break-inside: avoid;
+        font-family: monospace;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 1.6em;
+        margin-top: 1.6em;
+        max-width: 100%;
+        overflow: auto;
+        display: block;
+        word-wrap: break-word;
+        @apply rounded;
+        @apply pb-2;
+        @apply pt-2;
+        @apply pl-4;
+    }
+
+    p > code,
+    li > code,
+    dd > code,
+    td > code {
+        background: #f4f4f4;;
+        word-wrap: break-word;
+        box-decoration-break: clone;
+        padding: .1rem .3rem .2rem;
+        @apply rounded;
+    }
+    /* ... */
+  }
