@@ -50,7 +50,8 @@ defmodule ChatElixir.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:httpoison, "~> 2.0"}
+      {:httpoison, "~> 2.0"},
+      {:distillery, "~> 2.1"}
     ]
   end
 
