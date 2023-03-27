@@ -16,6 +16,7 @@ defmodule ChatElixir.Application do
       {Phoenix.PubSub, name: ChatElixir.PubSub},
       # Start Finch
       {Finch, name: ChatElixir.Finch},
+      {Task.Supervisor, name: StreamingText.TaskSupervisor},
       # Start the Endpoint (http/https)
       ChatElixirWeb.Endpoint
       # Start a worker by calling: ChatElixir.Worker.start_link(arg)

@@ -1,32 +1,29 @@
-<header class="px-4 sm:px-6 lg:px-8">
+<header class="px-4 sm:px-6 lg:px-8 sticky top-0 z-30 bg-white">
   <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
-    <div class="flex items-center gap-4">
+    <div class="flex items-center">
       <a href="/">
         <img src={~p"/images/logo.svg"} width="36" />
       </a>
       <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
         v<%= Application.spec(:phoenix, :vsn) %>
       </p>
-    </div>
-    <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <a href="https://twitter.com/elixirphoenix" class="hover:text-zinc-700">
-        @elixirphoenix
-      </a>
-      <a href="https://github.com/phoenixframework/phoenix" class="hover:text-zinc-700">
-        GitHub
-      </a>
-      <a
-        href="https://hexdocs.pm/phoenix/overview.html"
-        class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
-      >
-        Get Started <span aria-hidden="true">&rarr;</span>
-      </a>
+      <form class="relative mt-2 md:ml-2" id="search" phx-submit="search">
+          <input type="submit" hidden />
+          <input id="type" name="type" value={@type} type="text" {@state} class="shadow appearance-none border rounded py-2 w-40 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400" placeholder="Article"/>
+          about
+          <input id="question" name="question" value={@question} type="text" {@state} class="shadow appearance-none border rounded py-2 md:w-96  text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400" placeholder="Topic" required/>
+          <button class="ml-2">Search</button>
+      </form>
     </div>
   </div>
 </header>
-<main class="px-4 py-20 sm:px-6 lg:px-8">
-  <div class="mx-auto max-w-2xl">
+<main class="px-4 sm:px-6 lg:px-8 xl:px-28 mt-10 relative">
+  <div class="mx-auto max-w-xl lg:mx-0">
     <.flash_group flash={@flash} />
     <%= @inner_content %>
+      <!-- Back to top button -->
+      <button type="button" data-mdb-ripple="true" data-mdb-ripple-color="light" class="fixed inline-block p-3 bg-red-400 text-white font-medium text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out bottom-5 left-5" id="btn-back-to-top">
+        <svg aria-hidden="true" focusable="false" data-prefix="fas" class="w-4 h-4" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"></path></svg>
+      </button>
   </div>
 </main>

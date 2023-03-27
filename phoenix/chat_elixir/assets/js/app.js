@@ -23,7 +23,7 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}, timeout: 60000})
 
 // Show progress bar on live navigation and form submits
 topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
@@ -39,3 +39,82 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+
+// ---------------------- Custom JS ----------------------
+// ---------------------- Autoscroll ----------------------
+
+// Register the event listeners
+window.addEventListener(`phx:streaming_started`, streaming_started);
+window.addEventListener(`phx:streaming`, streaming);
+window.addEventListener(`phx:streaming_finished`, streaming_finished);
+
+// The event listener callback function
+function streaming_started(_event) {
+  userScroll= false;
+  autoScroll = false;
+}
+ 
+// The event listener callback function
+function streaming(_event) {
+  scrollToBottom();
+}
+
+// The event listener callback function
+function streaming_finished(_event) {
+  scrollToTop();
+}
+
+// Get the button
+let mybutton = document.getElementById("btn-back-to-top");
+// When the user clicks on the button, scroll to the top of the document
+mybutton.addEventListener("click", scrollToTop);
+let userScroll= false;
+let autoScroll = false;
+
+// When the user scrolls down 20px from the top of the document, show the button
+window.onscroll = function onscroll() {
+    if(autoScroll){
+        autoScroll = false;
+    }else{
+        userScroll= true;
+    }
+    scrollFunction();
+};
+
+// When the user scrolls down 20px from the top of the document, show the button
+function scrollFunction() {
+  if (
+    document.body.scrollTop > 10 ||
+    document.documentElement.scrollTop > 10
+  ) {
+    mybutton.style.display = "block";
+  } else {
+    mybutton.style.display = "none";
+  }
+}
+
+// When the user clicks on the button, scroll to the top of the document
+function scrollToTop() {
+  if(userScroll){
+    return;
+  }
+
+  window.scroll({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+// Scroll to bottom
+function scrollToBottom(){
+  if(userScroll){
+    return;
+  }
+  autoScroll = true;
+
+  window.scroll({
+    top: document.body.scrollHeight
+  });
+
+  scrollFunction();
+}

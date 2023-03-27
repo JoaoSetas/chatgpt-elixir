@@ -6,20 +6,114 @@
 @layer base {
     h1 {
       @apply text-2xl;
-      @apply font-bold;
+      @apply font-semibold;
       @apply pb-4;
       @apply pt-8;
       @apply text-center;
+      @apply tracking-wide;
+      @apply overline;
+      @apply decoration-red-400;
+      @apply decoration-1;
+      @apply underline-offset-1;
     }
     h2 {
+      @apply decoration-red-100;
+      @apply underline;
       @apply text-xl;
-      @apply font-bold;
+      @apply font-medium;
       @apply pb-2;
       @apply pt-4;
+      @apply text-gray-800;
+    }
+    h3 {
+      @apply text-lg;
+      @apply font-medium;
+      @apply pb-2;
+      @apply pt-4;
+      @apply text-gray-700;
     }
     p {
-        @apply text-justify;
-        @apply pt-2;
+      @apply text-justify;
+      @apply pt-2;
+      @apply pl-3;
+      @apply text-gray-700;
+    }
+    h1 + p {
+      @apply pt-2;
+      @apply px-0;
+      @apply font-medium;
+    }
+    input[type] {
+      @apply shadow;
+      @apply appearance-none;
+      @apply border;
+      @apply rounded;
+      @apply text-gray-800;
+      @apply leading-tight;
+      @apply focus:ring-0;
+      @apply focus:border-red-400;
+      @apply py-2;
+    }
+    form button,input[type=submit] {
+      @apply bg-red-400;
+      @apply hover:bg-red-700;
+      @apply text-white;
+      @apply h-8;
+      @apply w-16;
+      @apply rounded;
+      @apply text-sm;
+      @apply font-medium;
+    }
+    form a {
+      @apply rounded;
+      @apply border;
+      @apply px-6;
+      @apply pt-2.5;
+      @apply pb-2;
+      @apply text-xs;
+      @apply font-medium;
+      @apply uppercase;
+      @apply leading-normal;
+      @apply transition;
+      @apply duration-150;
+      @apply ease-in-out;
+      @apply hover:bg-neutral-100;
+      @apply focus:outline-none;
+      @apply focus:ring-0;
+    }
+    a {
+      @apply transition;
+      @apply duration-150;
+      @apply ease-in-out;
+      @apply text-blue-500;
+      @apply hover:text-blue-800;
+    }
+    ul {
+      @apply text-justify;
+      @apply list-disc;
+      @apply pt-4;
+      @apply mx-10;
+      @apply text-red-500;
+    }
+    ol {
+      @apply text-justify;
+      list-style-type: none;
+      counter-reset: my-awesome-counter;
+      @apply pt-4;
+      @apply mx-10;
+    }
+    ol li {
+      @apply pt-1;
+      counter-increment: my-awesome-counter;
+    }
+    ol li::before {
+      content: counter(my-awesome-counter) " - ";
+      font-weight: bold;
+    }
+    input[type="radio"] {
+      @apply ml-8;
+      @apply mr-2;
+      @apply mb-1;
     }
     pre {
         background: #f4f4f4;
@@ -40,16 +134,51 @@
         @apply pt-2;
         @apply pl-4;
     }
-
-    p > code,
-    li > code,
-    dd > code,
-    td > code {
+    code {
         background: #f4f4f4;;
         word-wrap: break-word;
         box-decoration-break: clone;
         padding: .1rem .3rem .2rem;
         @apply rounded;
     }
-    /* ... */
+    table {
+      @apply border-gray-200;
+      @apply table-auto;
+      @apply text-left;
+      @apply font-light;
+      @apply min-w-full;
+      @apply mr-10;
+      @apply mb-3;
+    }
+    thead {
+      @apply font-medium;
+      @apply border-b;
+    }
+    th, td {
+      @apply px-6;
+      @apply py-4;
+    }
+    tbody tr {
+      @apply border-b;
+      @apply transition;
+      @apply duration-300;
+      @apply ease-in-out;
+      @apply hover:bg-gray-100;
+      @apply dark:border-neutral-500;
+    }
+    /* For Webkit-based browsers (Chrome, Safari and Opera) */
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* For IE, Edge and Firefox */
+    .scrollbar-hide {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    #btn-back-to-top {
+      position: fixed;
+      display: none;
+    }
   }
