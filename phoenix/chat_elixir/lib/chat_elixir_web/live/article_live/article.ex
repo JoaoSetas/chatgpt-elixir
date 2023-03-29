@@ -17,7 +17,7 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   end
 
   @impl true
-  def handle_event("search", %{"question" => question, "type" => type, "code" => code} = params, socket) do
+  def handle_event("search", %{"question" => question, "type" => type, "code" => code}, socket) do
     target = self()
 
     Task.start(fn ->
@@ -52,7 +52,8 @@ defmodule ChatElixirWeb.ArticleLive.Article do
       )}
   end
 
-  def handle_params(_params, value, socket) do
+  @impl true
+  def handle_params(_params, _value, socket) do
     {:noreply, socket}
   end
 
@@ -76,7 +77,7 @@ defmodule ChatElixirWeb.ArticleLive.Article do
     }
   end
 
-  def handle_info({ref, content}, socket) when socket.assigns.response_task.ref == ref do
+  def handle_info({ref, _content}, socket) when socket.assigns.response_task.ref == ref do
     {:noreply,
       assign(socket, state: %{})
       |> push_event("streaming_finished", %{})

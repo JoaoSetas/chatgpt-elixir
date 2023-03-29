@@ -23,7 +23,7 @@ services:
         ports:
             - "4000:4000"
         volumes:
-            - ./phoenix:/home/app
+            - ./phoenix/chat_elixir:/home/app
         environment:
             POSTGRES_HOST: ${POSTGRES_HOST}
             POSTGRES_DATABASE: ${POSTGRES_DATABASE}
@@ -34,8 +34,6 @@ services:
         restart: always
         depends_on:
             - postgres
-        profiles:
-            - dev
 
 volumes: 
     db_volume:

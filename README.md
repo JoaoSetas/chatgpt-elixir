@@ -19,7 +19,7 @@ docker-compose run phoenix_dev mix phx.gen.secret
 ## Starting containers
 Start the containers
 ```BASH
-docker-compose --profile dev up -d
+docker-compose up -d
 ```
 Now you should see the homepage in http://localhost:4000/
 # Development Setup
@@ -50,7 +50,7 @@ IEx.Helpers.recompile
 
 Run tests
 ```BASH
-docker-compose -f docker-compose.phoenix.yml run phoenix_dev sh run-checks.sh
+docker-compose run phoenix_dev sh run-checks.sh
 ```
 Debug tests (run inside a app in the container)
 ```BASH

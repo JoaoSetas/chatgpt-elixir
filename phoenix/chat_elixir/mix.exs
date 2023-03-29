@@ -52,7 +52,8 @@ defmodule ChatElixir.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:httpoison, "~> 2.0"},
       {:distillery, "~> 2.1"},
-      {:similarity, "~> 0.2"}
+      {:similarity, "~> 0.2"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
