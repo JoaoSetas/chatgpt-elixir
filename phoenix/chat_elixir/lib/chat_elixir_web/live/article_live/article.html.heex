@@ -1,5 +1,12 @@
 <div class="left-[40rem] fixed inset-y-0 right-0 z-30 hidden lg:block xl:left-[50rem]">
-  <textarea id="code" name="code" type="text" {@state} class="scrollbar-hide text-black font-medium text-sm no-underline bg-transparent resize-none border-0 absolute inset-y-16 inset-x-8 min-w-[90%] z-40 shadow  rounded md:w-96 text-white-400 focus:ring-0 focus:shadow-outline focus:border-red-800 focus:border-2 focus:bg-slate-300/50 placeholder:italic placeholder:text-gray-200" placeholder="Code: "><%= @code %></textarea>
+  <textarea
+    id="code"
+    name="code"
+    type="text"
+    {@state}
+    class="scrollbar-hide text-black font-medium text-sm no-underline bg-transparent resize-none border-0 absolute inset-y-16 inset-x-8 min-w-[90%] z-40 shadow  rounded md:w-96 text-white-400 focus:ring-0 focus:shadow-outline focus:border-red-800 focus:border-2 focus:bg-slate-300/50 placeholder:italic placeholder:text-gray-200"
+    placeholder="Code: "
+  ><%= @code %></textarea>
   <svg
     viewBox="0 0 1480 957"
     fill="none"
@@ -41,9 +48,9 @@
 <div class="pb-10">
   <%= if @image != "" do %>
     <div class="rounded overflow-hidden shadow-lg">
-      <img class="w-full h-80" src={@image}>
+      <img class="w-full h-80" src={@image} />
     </div>
   <% end %>
 
-  <%= raw @stream %>
+  <%= raw(@stream) %>
 </div>

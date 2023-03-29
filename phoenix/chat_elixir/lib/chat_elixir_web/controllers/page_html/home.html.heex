@@ -53,14 +53,15 @@
       </small>
     </h1>
     <div class="rounded overflow-hidden shadow-lg">
-      <%
-        atrributes = %{
-          "class" => "w-full h-96",
-          "src" => ChatElixir.ChatGPT.Api.image("Simple photo about " <> @conn.query_params["question"])
-        }
-      %>
-      <img {atrributes}>
+      <% atrributes = %{
+        "class" => "w-full h-96",
+        "src" =>
+          ChatElixir.ChatGPT.Api.image("Simple photo about " <> @conn.query_params["question"])
+      } %>
+      <img {atrributes} />
     </div>
-    <%= raw ChatElixir.ChatGPT.Api.completion_html("Article about" <> @conn.query_params["question"]) %>
+    <%= raw(
+      ChatElixir.ChatGPT.Api.completion_html("Article about" <> @conn.query_params["question"])
+    ) %>
   </div>
 </div>

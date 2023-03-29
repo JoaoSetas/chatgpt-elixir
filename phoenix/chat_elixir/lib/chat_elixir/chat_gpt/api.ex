@@ -1,11 +1,18 @@
 defmodule ChatElixir.ChatGPT.Api do
+  @moduledoc """
+  This module is responsible for interacting with the OpenAI API.
+  """
 
   def completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
 
-    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = HTTPoison.post(url, get_body(text, options), get_headers(), [timeout: 60_000, recv_timeout: 60_000])
+    {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
+      HTTPoison.post(url, get_body(text, options), get_headers(),
+        timeout: 60_000,
+        recv_timeout: 60_000
+      )
 
-    %{"choices" => [%{"text" => response}|_]} =  Jason.decode!(body)
+    %{"choices" => [%{"text" => response} | _]} = Jason.decode!(body)
 
     response
   end
@@ -15,7 +22,14 @@ defmodule ChatElixir.ChatGPT.Api do
     body = get_body(text, Map.merge(options, %{"stream" => true}))
 
     Stream.resource(
-      fn -> HTTPoison.post!(url, body, get_headers(), stream_to: self(), async: :once, timeout: 60_000, recv_timeout: 3_000) end,
+      fn ->
+        HTTPoison.post!(url, body, get_headers(),
+          stream_to: self(),
+          async: :once,
+          timeout: 60_000,
+          recv_timeout: 3_000
+        )
+      end,
       &handle_async_response/1,
       &close_async_response/1
     )
@@ -35,6 +49,7 @@ defmodule ChatElixir.ChatGPT.Api do
 
   def image(text, options \\ %{}) do
     url = "https://api.openai.com/v1/images/generations"
+
     default_options = %{
       "prompt" => text,
       "n" => 1,
@@ -44,9 +59,11 @@ defmodule ChatElixir.ChatGPT.Api do
     options = Map.merge(default_options, options)
 
     body = Jason.encode!(options)
-    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = HTTPoison.post(url, body, get_headers(), [timeout: 10_000, recv_timeout: 10_000])
 
-    %{"data" => [%{"url" => response}|_]} = Jason.decode!(body)
+    {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
+      HTTPoison.post(url, body, get_headers(), timeout: 10_000, recv_timeout: 10_000)
+
+    %{"data" => [%{"url" => response} | _]} = Jason.decode!(body)
 
     response
   end
@@ -65,13 +82,14 @@ defmodule ChatElixir.ChatGPT.Api do
     options = Map.merge(default_options, options)
 
     body = Jason.encode!(options)
-    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = HTTPoison.post(url, body, get_headers(), [timeout: 60_000, recv_timeout: 60_000])
 
-    %{"data" => [%{"embedding" => embeddings}|_]} = Jason.decode!(body)
+    {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
+      HTTPoison.post(url, body, get_headers(), timeout: 60_000, recv_timeout: 60_000)
+
+    %{"data" => [%{"embedding" => embeddings} | _]} = Jason.decode!(body)
 
     embeddings
   end
-
 
   defp close_async_response(resp) do
     :hackney.stop_async(resp)
@@ -134,7 +152,7 @@ defmodule ChatElixir.ChatGPT.Api do
       "presence_penalty" => 0
     }
     |> Map.merge(options)
-    |> Jason.encode!
+    |> Jason.encode!()
   end
 
   defp get_headers() do

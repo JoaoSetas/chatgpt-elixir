@@ -20,7 +20,7 @@ defmodule ChatElixir.ChatGPT.ApiTest do
   end
 
   test "embeddings" do
-    assert [embedding|_]= Api.embeddings("This is a test")
+    assert [embedding | _] = Api.embeddings("This is a test")
     assert is_number(embedding)
   end
 end
