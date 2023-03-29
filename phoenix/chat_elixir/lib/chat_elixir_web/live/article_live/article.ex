@@ -7,15 +7,17 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   def mount(params, _session, socket) do
     {:ok, assign(socket,
       stream: "",
-      question: nil,
-      type: nil,
+      question: params["question"],
+      type: params["type"],
+      code: params["code"],
       state: %{},
+      params: %{"ola" => "adeus"},
       image: ""
       )}
   end
 
   @impl true
-  def handle_event("search", %{"question" => question, "type" => type}, socket) do
+  def handle_event("search", %{"question" => question, "type" => type, "code" => code} = params, socket) do
     target = self()
 
     Task.start(fn ->
@@ -25,15 +27,17 @@ defmodule ChatElixirWeb.ArticleLive.Article do
 
     new_type = if String.first(type) == nil, do: "Article", else: type
 
-    stream = ChatGPT.Api.stream_completion_html(new_type <> " about" <> question, "<div class=\"container\">")
+    stream = ChatGPT.Api.stream_completion_html(new_type <> " about " <> question <> ":\n" <> code, "<div class=\"container\">")
     {:noreply, assign(socket,
       question: question,
       type: type,
+      code: code,
       state: %{"disabled" => "true"},
       stream: "",
       image: "",
       response_task: stream_response(stream))
       |> push_event("streaming_started", %{})
+      |> push_patch(to: "/?" <> URI.encode_query(%{type: type, question: question, code: code}))
     }
   end
 
@@ -41,10 +45,15 @@ defmodule ChatElixirWeb.ArticleLive.Article do
     {:noreply, assign(socket,
       question: nil,
       type: nil,
+      code: nil,
       state: %{},
       stream: "",
       image: ""
       )}
+  end
+
+  def handle_params(_params, value, socket) do
+    {:noreply, socket}
   end
 
   defp stream_response(stream) do

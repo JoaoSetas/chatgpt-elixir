@@ -19,7 +19,7 @@ defmodule ChatElixir.MixProject do
   def application do
     [
       mod: {ChatElixir.Application, []},
-      extra_applications: [:httpoison, :logger, :runtime_tools]
+      extra_applications: [:httpoison, :logger, :runtime_tools, :os_mon]
     ]
   end
 
@@ -51,7 +51,8 @@ defmodule ChatElixir.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:httpoison, "~> 2.0"},
-      {:distillery, "~> 2.1"}
+      {:distillery, "~> 2.1"},
+      {:similarity, "~> 0.2"}
     ]
   end
 

@@ -3,9 +3,9 @@ defmodule ChatElixir.ChatGPT.Api do
   def completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
 
-    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = HTTPoison.post(url, get_body(text, options), get_headers(), [timeout: 100_000, recv_timeout: 1_000])
+    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = HTTPoison.post(url, get_body(text, options), get_headers(), [timeout: 60_000, recv_timeout: 60_000])
 
-    %{"choices" => [%{"text" => response}|_]} = Jason.decode!(body)
+    %{"choices" => [%{"text" => response}|_]} =  Jason.decode!(body)
 
     response
   end
@@ -15,7 +15,7 @@ defmodule ChatElixir.ChatGPT.Api do
     body = get_body(text, Map.merge(options, %{"stream" => true}))
 
     Stream.resource(
-      fn -> HTTPoison.post!(url, body, get_headers(), stream_to: self(), async: :once, timeout: 100_000, recv_timeout: 100_000) end,
+      fn -> HTTPoison.post!(url, body, get_headers(), stream_to: self(), async: :once, timeout: 60_000, recv_timeout: 3_000) end,
       &handle_async_response/1,
       &close_async_response/1
     )
@@ -50,6 +50,28 @@ defmodule ChatElixir.ChatGPT.Api do
 
     response
   end
+
+  @doc """
+  Returns a list of embeddings for the given text.
+  """
+  def embeddings(text, options \\ %{}) do
+    url = "https://api.openai.com/v1/embeddings"
+
+    default_options = %{
+      "input" => text,
+      "model" => "text-embedding-ada-002"
+    }
+
+    options = Map.merge(default_options, options)
+
+    body = Jason.encode!(options)
+    {:ok, %HTTPoison.Response{status_code: 200, body: body}} = HTTPoison.post(url, body, get_headers(), [timeout: 60_000, recv_timeout: 60_000])
+
+    %{"data" => [%{"embedding" => embeddings}|_]} = Jason.decode!(body)
+
+    embeddings
+  end
+
 
   defp close_async_response(resp) do
     :hackney.stop_async(resp)
@@ -101,9 +123,9 @@ defmodule ChatElixir.ChatGPT.Api do
     end
   end
 
-  def get_body(text, options \\ []) do
+  defp get_body(text, options \\ []) do
     %{
-      "prompt" => text,
+      "prompt" => remove_grouped_spaces(text),
       "model" => "text-davinci-003",
       "max_tokens" => 2000,
       "temperature" => 0.2,
@@ -115,11 +137,15 @@ defmodule ChatElixir.ChatGPT.Api do
     |> Jason.encode!
   end
 
-  def get_headers() do
+  defp get_headers() do
     [
       {"Authorization", "Bearer #{System.get_env("OPENAI_API_KEY")}"},
       {"Content-Type", "application/json"}
     ]
   end
 
+  defp remove_grouped_spaces(text) do
+    Regex.replace(~r/\s{2,}/, text, " ")
+    |> String.trim()
+  end
 end

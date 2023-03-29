@@ -32,7 +32,24 @@
       @apply pt-4;
       @apply text-gray-700;
     }
-    p {
+    h4 {
+      @apply font-medium;
+      @apply text-gray-700;
+      @apply pl-2;
+      @apply pb-1;
+      @apply pt-2;
+    }
+    h4:after {
+      content: ":";
+    }
+    h4 + p {
+      @apply text-justify;
+      @apply pb-3;
+      @apply pl-4;
+      @apply pt-0;
+      @apply text-gray-600;
+    }
+    main p {
       @apply text-justify;
       @apply pt-2;
       @apply pl-3;
@@ -43,7 +60,7 @@
       @apply px-0;
       @apply font-medium;
     }
-    input[type] {
+    input[type],select {
       @apply shadow;
       @apply appearance-none;
       @apply border;
@@ -54,7 +71,7 @@
       @apply focus:border-red-400;
       @apply py-2;
     }
-    form button,input[type=submit] {
+    form button[type=submit], form button, input[type=submit] {
       @apply bg-red-400;
       @apply hover:bg-red-700;
       @apply text-white;
@@ -64,7 +81,7 @@
       @apply text-sm;
       @apply font-medium;
     }
-    form a {
+    main form a {
       @apply rounded;
       @apply border;
       @apply px-6;
@@ -93,6 +110,9 @@
       @apply list-disc;
       @apply pt-4;
       @apply mx-10;
+      @apply text-gray-800;
+    }
+    ul li::marker {
       @apply text-red-500;
     }
     ol {
