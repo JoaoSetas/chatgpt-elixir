@@ -52,6 +52,7 @@ window.addEventListener(`phx:streaming_finished`, streaming_finished);
 function streaming_started(_event) {
   userScroll= false;
   autoScroll = false;
+  scrollToTop();
 }
  
 // The event listener callback function
@@ -67,9 +68,15 @@ function streaming_finished(_event) {
 // Get the button
 let mybutton = document.getElementById("btn-back-to-top");
 // When the user clicks on the button, scroll to the top of the document
-mybutton.addEventListener("click", scrollToTop);
+mybutton.addEventListener("click", scrollButton);
 let userScroll= false;
 let autoScroll = false;
+
+function scrollButton(){
+  userScroll = false;
+  scrollToTop();
+  userScroll = true;
+}
 
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = function onscroll() {
@@ -98,6 +105,8 @@ function scrollToTop() {
   if(userScroll){
     return;
   }
+
+  autoScroll = true;
 
   window.scroll({
     top: 0,

@@ -1,3 +1,5 @@
 {
-    "elixir.projectPath": "phoenix/chat_elixir"
+    "elixir.projectPath": "phoenix/chat_elixir",
+    "elixirLS.mixEnv": "test",
+    "elixirLS.projectDir": "phoenix/chat_elixir"
 }
