@@ -19,6 +19,9 @@ jobs:
 
     name: Build and test
     runs-on: ubuntu-latest
+    
+    env:
+      working-directory: phoenix/chat_elixir
 
     steps:
     - uses: actions/checkout@v3
