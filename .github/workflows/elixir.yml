@@ -40,9 +40,13 @@ jobs:
         restore-keys: ${{ runner.os }}-mix-
     - name: Install dependencies
       run: mix deps.get
+      working-directory: ${{env.working-directory}}
     - name: Check format
       run: mix format --check-formatted
+      working-directory: ${{env.working-directory}}
     - name: Check lint
       run: mix credo list
+      working-directory: ${{env.working-directory}}
     - name: Run tests
       run: mix test
+      working-directory: ${{env.working-directory}}
