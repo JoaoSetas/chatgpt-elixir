@@ -13,12 +13,6 @@ on:
 
 env:
   working-directory: phoenix/chat_elixir
-  MIX_ENV: test
-  POSTGRES_HOST: postgres
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: postgres
-  SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
-  OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
 
 permissions:
   contents: read
@@ -36,6 +30,9 @@ jobs:
         # Docker Hub image
         image: postgres
         ports: ['5432:5432']
+        env:   
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -82,3 +79,10 @@ jobs:
     - name: Run tests
       run: mix test
       working-directory: ${{env.working-directory}}
+      env:
+        MIX_ENV: test
+        POSTGRES_HOST: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
+        OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
