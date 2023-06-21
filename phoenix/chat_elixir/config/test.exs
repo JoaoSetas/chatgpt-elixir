@@ -17,7 +17,7 @@ config :chat_elixir, ChatElixir.Repo,
 # you can enable the server option below.
 config :chat_elixir, ChatElixirWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "zvN3+b+EEWu72JHV79f/WEExUVrUg2vBMezeYXnzKbwaRcN+fa/len+EcdHOusP5",
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   server: false
 
 # In test we don't send emails.

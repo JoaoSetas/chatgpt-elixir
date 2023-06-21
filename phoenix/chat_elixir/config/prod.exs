@@ -31,8 +31,8 @@ config :chat_elixir, ChatElixirWeb.Endpoint,
   load_from_system_env: true,
   # Needed for Phoenix 1.2 and 1.4. Doesn't hurt for 1.3.
   http: [port: {:system, "PORT"}],
-  secret_key_base: "${SECRET_KEY_BASE}",
-  url: [host: "smartcrop.pt", port: 443],
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
+  url: [host: System.get_env("HOST"), port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   # To bust cache during hot upgrades
   version: Mix.Project.config()[:version]

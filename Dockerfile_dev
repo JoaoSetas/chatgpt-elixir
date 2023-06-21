@@ -1,7 +1,5 @@
 FROM elixir:1.14
 
-ARG MAIN_APP
-
 WORKDIR /home/app
 RUN chmod -R 777 .
 

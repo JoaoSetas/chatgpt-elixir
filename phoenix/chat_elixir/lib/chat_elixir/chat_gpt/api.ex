@@ -3,6 +3,11 @@ defmodule ChatElixir.ChatGPT.Api do
   This module is responsible for interacting with the OpenAI API.
   """
 
+  @doc """
+  Completes the given `text`.
+
+  Returns the completion as a string.
+  """
   def completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
 
@@ -17,6 +22,12 @@ defmodule ChatElixir.ChatGPT.Api do
     response
   end
 
+
+  @doc """
+  completes the given `text`.
+
+  This function is the same as `completion/2` but returns a stream
+  """
   def stream_completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
     body = get_body(text, Map.merge(options, %{"stream" => true}))
@@ -35,18 +46,33 @@ defmodule ChatElixir.ChatGPT.Api do
     )
   end
 
+  @doc """
+  Completes the given `text`.
+
+  This function is the same as `completion/2` but returns HTML
+  """
   def completion_html(text, starting_code \\ "<", options \\ %{}) do
     prompt = "Using html. #{text}\n#{starting_code}"
 
     completion(text, Map.put(options, "prompt", prompt))
   end
 
+  @doc """
+  Completes the given `text`.
+
+  This function is the same as `stream_completion/2` but returns HTML
+  """
   def stream_completion_html(text, starting_code \\ "<", options \\ %{}) do
     prompt = "Using html. #{text}\n#{starting_code}"
 
     stream_completion(text, Map.put(options, "prompt", prompt))
   end
 
+  @doc """
+  Generates a image from the given `text`
+
+  Returns a link as string
+  """
   def image(text, options \\ %{}) do
     url = "https://api.openai.com/v1/images/generations"
 

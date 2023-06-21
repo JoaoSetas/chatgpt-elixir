@@ -23,7 +23,7 @@ config :chat_elixir, ChatElixirWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "5jf9DOU0rbTRR3cnbZbyb7DF7MeKQSkFPpDfNQAxcKf3Jan/Hy3CjtVXSdevhTc7",
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}

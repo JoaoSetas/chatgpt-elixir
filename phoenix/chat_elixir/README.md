@@ -1,18 +1,88 @@
-# ChatElixir
+# Installation with docker
+## Clone the repo
 
-To start your Phoenix server:
+```BASH
+git clone https://github.com/JoaoSetas/chatgpt-elixir.git
+```
+## Configuring .env
+Create the folder `.env` from the example
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+Get the `SECRET_KEY_BASE` with
+```BASH
+docker-compose run phoenix_dev mix phx.gen.secret
+```
+## Starting containers
+Start the containers
+```BASH
+docker-compose up -d
+```
+Now you should see the homepage in http://localhost:4000/
+# Development Setup
+Get logs
+```BASH
+docker-compose logs -f
+```
+Connect to elixir container
+```BASH
+docker-compose exec phoenix_dev bash
+```
+# Debug
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Connect to the iex with 
+```BASH
+docker-compose exec phoenix_dev iex --sname console --cookie monster --remsh cookie
+```
+To debug in the iex put this in your code to break 
+```elixir
+require IEx; IEx.pry
+```
+It needed in the iex this command recompiles any changes 
+```elixir
+IEx.Helpers.recompile
+```
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+# Test
 
-## Learn more
+Run tests
+```BASH
+docker-compose run phoenix_dev sh run-checks.sh
+```
+Debug tests (run inside a app in the container)
+```BASH
+MIX_ENV=test iex -S mix test --trace
+```
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+# Production
+
+Setup gigalixir with https://www.gigalixir.com/docs/getting-started-guide/
+
+Push to production
+```BASH
+git push gigalixir
+```
+
+Verify if healthy
+```BASH
+gigalixir ps
+```
+
+# Stress test
+
+`docker run -i --rm loadimpact/k6 run --vus 100 --duration 30s - <stress_test.js`
+
+```javascript
+    //script.js
+    import http from 'k6/http';
+    import { Trend } from 'k6/metrics';
+    import { sleep } from 'k6';
+
+    let myTrend = new Trend('waiting_time');
+
+    export default function () {
+        let r = http.get('http://host.docker.internal:4000/');
+
+        myTrend.add(r.timings.waiting);
+
+        sleep(1);
+    }
+```
