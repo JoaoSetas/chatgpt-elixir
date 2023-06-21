@@ -22,6 +22,26 @@ jobs:
     
     env:
       working-directory: phoenix/chat_elixir
+      POSTGRES_HOST: postgres
+      SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
+      OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
     - uses: actions/checkout@v3
@@ -48,5 +68,5 @@ jobs:
       run: mix credo list
       working-directory: ${{env.working-directory}}
     - name: Run tests
-      run: mix test.no_db
+      run: mix test
       working-directory: ${{env.working-directory}}
