@@ -1,4 +1,7 @@
 defmodule ChatElixirWeb.Telemetry do
+  @moduledoc """
+  This module is responsible for Telemetry.
+  """
   use Supervisor
   import Telemetry.Metrics
 

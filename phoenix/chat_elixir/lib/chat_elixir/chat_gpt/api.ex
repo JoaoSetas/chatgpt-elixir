@@ -22,7 +22,6 @@ defmodule ChatElixir.ChatGPT.Api do
     response
   end
 
-
   @doc """
   completes the given `text`.
 
