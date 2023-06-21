@@ -22,11 +22,6 @@ jobs:
     
     env:
       working-directory: phoenix/chat_elixir
-      POSTGRES_HOST: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
-      OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
 
     # Service containers to run with `container-job`
     services:
@@ -72,3 +67,9 @@ jobs:
     - name: Run tests
       run: mix test
       working-directory: ${{env.working-directory}}
+      env:
+        POSTGRES_HOST: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
+        OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
