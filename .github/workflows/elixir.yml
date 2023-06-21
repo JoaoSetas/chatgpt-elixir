@@ -11,6 +11,15 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  working-directory: phoenix/chat_elixir
+  MIX_ENV: test
+  POSTGRES_HOST: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
+  OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
+
 permissions:
   contents: read
 
@@ -19,15 +28,6 @@ jobs:
 
     name: Build and test
     runs-on: ubuntu-latest
-    
-    env:
-      working-directory: phoenix/chat_elixir
-      MIX_ENV: test
-      POSTGRES_HOST: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
-      OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
 
     # Service containers to run with `container-job`
     services:
