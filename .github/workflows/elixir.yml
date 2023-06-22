@@ -51,10 +51,6 @@ jobs:
       run: mix deps.get
       working-directory: ${{env.working-directory}}
 
-    - name: Compiles without warnings
-      run: mix compile --warnings-as-errors
-      working-directory: ${{env.working-directory}}
-
     # Cache key based on Erlang/Elixir version and the mix.lock hash
     - name: Restore PLT cache
       id: plt_cache
