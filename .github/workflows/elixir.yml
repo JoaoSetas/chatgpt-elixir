@@ -38,7 +38,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
+    env:
+      MIX_ENV: test
     steps:
     - uses: actions/checkout@v3
     - name: Set up Elixir
@@ -47,8 +48,7 @@ jobs:
         elixir-version: '1.14' # Define the elixir version [required]
         otp-version: '26' # Define the OTP version [required]
       env:
-          ImageOS: ubuntu20
-          MIX_ENV: test
+        ImageOS: ubuntu20
     - name: Restore dependencies cache
       id: cache-deps
       uses: actions/cache@v3
