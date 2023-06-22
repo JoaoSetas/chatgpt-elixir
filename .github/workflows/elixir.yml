@@ -40,6 +40,11 @@ jobs:
           --health-retries 5
     env:
       MIX_ENV: test
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
+      OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
     steps:
     - uses: actions/checkout@v3
     - name: Set up Elixir
@@ -68,10 +73,3 @@ jobs:
     - name: Run tests
       run: printenv && mix test
       working-directory: ${{env.working-directory}}
-      env:
-        MIX_ENV: test
-        POSTGRES_HOST: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
-        OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
