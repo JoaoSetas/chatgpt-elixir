@@ -30,7 +30,7 @@ Create the folder `.env` from the example
 
 #### `SECRET_KEY_BASE` - Generate with:
 ```BASH
-docker-compose run phoenix_dev mix phx.gen.secret
+docker-compose run --rm phoenix_dev bash -c "echo 'SECRET_KEY_BASE:' & mix phx.gen.secret"
 ```
 ## Starting containers
 Start the containers
