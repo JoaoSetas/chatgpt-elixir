@@ -23,30 +23,11 @@ jobs:
     name: Build and test
     runs-on: ubuntu-latest
 
-    # Service containers to run with `container-job`
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres:14
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
-        env:
-          POSTGRES_PASSWORD: postgres
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     env:
       MIX_ENV: test
-      POSTGRES_HOST: localhost
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
       SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
       OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
+      DATABASE_URL: ${{secrets.DATABASE_URL}}
       
     steps:
     - uses: actions/checkout@v3
@@ -83,7 +64,7 @@ jobs:
     # Create PLTs if no cache was found
     - name: Create PLTs
       if: steps.plt_cache.outputs.cache-hit != 'true'
-      run: mix dialyzer --plt
+      run: MIX_ENV=dev mix dialyzer --plt
       working-directory: ${{env.working-directory}}
 
     # By default, the GitHub Cache action will only save the cache if all steps in the job succeed,
@@ -99,7 +80,7 @@ jobs:
           ${{env.working-directory}}/priv/plts
 
     - name: Run dialyzer
-      run: mix dialyzer --format github
+      run: MIX_ENV=dev mix dialyzer --format github
       working-directory: ${{env.working-directory}}
 
     - name: Check format
@@ -111,6 +92,6 @@ jobs:
       working-directory: ${{env.working-directory}}
 
     - name: Run tests
-      run: printenv && mix test
+      run: mix test
       working-directory: ${{env.working-directory}}
 

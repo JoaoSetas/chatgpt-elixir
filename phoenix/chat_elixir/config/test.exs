@@ -6,12 +6,13 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :chat_elixir, ChatElixir.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "chat_elixir_test#{System.get_env("MIX_TEST_PARTITION")}",
+  adapter: Ecto.Adapters.Postgres,
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10
+  url: System.get_env("DATABASE_URL"),
+  database: "chat_elixir_test#{System.get_env("MIX_TEST_PARTITION")}",
+  ssl: true,
+  # Free tier db only allows 4 connections. Rolling deploys need pool_size*(n+1) connections where n is the number of app replicas.
+  pool_size: 2
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
