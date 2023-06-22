@@ -28,7 +28,7 @@ defmodule ChatElixir.DataCase do
   end
 
   setup tags do
-    ChatElixir.DataCase.setup_sandbox(tags)
+    # ChatElixir.DataCase.setup_sandbox(tags)
     :ok
   end
 

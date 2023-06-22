@@ -32,7 +32,8 @@ defmodule ChatElixirWeb.ConnCase do
   end
 
   setup tags do
-    ChatElixir.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    # ChatElixir.DataCase.setup_sandbox(tags)
+    # {:ok, conn: Phoenix.ConnTest.build_conn()}
+    {:ok, conn: nil}
   end
 end

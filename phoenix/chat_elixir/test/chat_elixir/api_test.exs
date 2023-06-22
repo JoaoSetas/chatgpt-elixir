@@ -1,5 +1,5 @@
 defmodule ChatElixir.ChatGPT.ApiTest do
-  # use ChatElixir.DataCase, async: true
+  use ChatElixir.DataCase, async: true
 
   alias ChatElixir.ChatGPT.Api
 
