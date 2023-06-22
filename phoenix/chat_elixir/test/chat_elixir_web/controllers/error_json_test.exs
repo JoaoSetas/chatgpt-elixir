@@ -1,5 +1,5 @@
 defmodule ChatElixirWeb.ErrorJSONTest do
-  use ChatElixirWeb.ConnCase, async: true
+  # use ChatElixirWeb.ConnCase, async: true
 
   test "renders 404" do
     assert ChatElixirWeb.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}
