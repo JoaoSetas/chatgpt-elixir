@@ -31,7 +31,6 @@ jobs:
         image: postgres:14
         ports: ['5432:5432']
         env:
-          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         # Set health checks to wait until postgres has started
         options: >-
