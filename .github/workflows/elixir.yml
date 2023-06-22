@@ -25,10 +25,12 @@ jobs:
 
     env:
       MIX_ENV: test
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       SECRET_KEY_BASE: ${{secrets.SECRET_KEY_BASE}}
       OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
-      DATABASE_URL: ${{secrets.DATABASE_URL}}
-      
+
     steps:
     - uses: actions/checkout@v3
     - name: Set up Elixir
