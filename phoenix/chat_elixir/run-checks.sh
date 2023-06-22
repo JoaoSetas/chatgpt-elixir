@@ -2,7 +2,7 @@ MIX_ENV=test
 
 mix deps.get
 
-mix dialyzer
+MIX_ENV=dev mix dialyzer
 
 mix format
 
@@ -14,5 +14,7 @@ printf "%s"
 read ans
 
 mix test
+
+MIX_ENV=dev
 
 echo "\e[42mAll good!\e[0m"

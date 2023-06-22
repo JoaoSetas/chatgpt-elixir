@@ -39,6 +39,10 @@ docker-compose up -d
 ```
 Now you should see the homepage in http://localhost:4000/
 # Development
+Test before commit
+```BASH
+docker-compose run --rm phoenix_dev mix test
+```
 Get logs
 ```BASH
 docker-compose logs -f

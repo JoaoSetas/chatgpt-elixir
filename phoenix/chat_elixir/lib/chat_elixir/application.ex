@@ -10,8 +10,6 @@ defmodule ChatElixir.Application do
     children = [
       # Start the Telemetry supervisor
       ChatElixirWeb.Telemetry,
-      # Start the Ecto repository
-      ChatElixir.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: ChatElixir.PubSub},
       # Start Finch
@@ -22,6 +20,16 @@ defmodule ChatElixir.Application do
       # Start a worker by calling: ChatElixir.Worker.start_link(arg)
       # {ChatElixir.Worker, arg}
     ]
+
+    children =
+      case System.get_env("GITHUB_ACTIONS") do
+        "true" ->
+          children
+
+        _ ->
+          # Start the Ecto repository
+          [ChatElixir.Repo | children]
+      end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

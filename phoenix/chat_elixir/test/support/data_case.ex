@@ -28,7 +28,10 @@ defmodule ChatElixir.DataCase do
   end
 
   setup tags do
-    # ChatElixir.DataCase.setup_sandbox(tags)
+    if !System.get_env("GITHUB_ACTIONS") do
+      ChatElixir.DataCase.setup_sandbox(tags)
+    end
+
     :ok
   end
 
