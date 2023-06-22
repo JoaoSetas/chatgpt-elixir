@@ -2,6 +2,8 @@ MIX_ENV=test
 
 mix deps.get
 
+mix dialyzer
+
 mix format
 
 mix credo list

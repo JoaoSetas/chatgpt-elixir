@@ -54,7 +54,7 @@ defmodule ChatElixir.MixProject do
       {:distillery, "~> 2.1"},
       {:similarity, "~> 0.2"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.3", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.3", only: [:dev, :test], runtime: false}
     ]
   end
 
