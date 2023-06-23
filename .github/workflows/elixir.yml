@@ -40,6 +40,7 @@ jobs:
         otp-version: '26' # Define the OTP version [required]
       env:
         ImageOS: ubuntu20
+
     - name: Restore dependencies cache
       id: cache-deps
       uses: actions/cache@v3
@@ -47,8 +48,13 @@ jobs:
         path: ${{env.working-directory}}/deps
         key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
         restore-keys: ${{ runner.os }}-mix-
+
     - name: Install dependencies
       run: mix deps.get
+      working-directory: ${{env.working-directory}}
+
+    - name: Check dependencies
+      run: mix hex.audit
       working-directory: ${{env.working-directory}}
 
     # Cache key based on Erlang/Elixir version and the mix.lock hash
@@ -86,7 +92,7 @@ jobs:
       working-directory: ${{env.working-directory}}
 
     - name: Check format
-      run: mix format --check-formatted
+      run: mix format --dry-run --check-formatted
       working-directory: ${{env.working-directory}}
 
     - name: Check lint

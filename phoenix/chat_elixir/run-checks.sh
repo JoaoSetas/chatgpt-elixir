@@ -2,6 +2,8 @@ MIX_ENV=test
 
 mix deps.get
 
+mix hex.audit
+
 MIX_ENV=dev mix dialyzer
 
 mix format
