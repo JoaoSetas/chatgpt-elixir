@@ -24,7 +24,7 @@ Also a image is generated from the second input.
 git clone https://github.com/JoaoSetas/chatgpt-elixir.git
 ```
 ## Configuring .env
-Create the folder `.env` from the example
+Create the folder `.env` from the `.env.example`
 
 #### `OPENAI_API_KEY`  - Get from https://beta.openai.com/account/api-keys
 
@@ -32,22 +32,22 @@ Create the folder `.env` from the example
 ```BASH
 docker-compose run --rm phoenix_dev bash -c "echo 'SECRET_KEY_BASE:' & mix phx.gen.secret"
 ```
-## Starting containers
+## Running the app
 Start the containers
 ```BASH
 docker-compose up -d
 ```
-Now you should see the homepage in http://localhost:4000/
+Now you should see the app in http://localhost:4000/
 # Development
-Test before commit
+Checks before commit
 ```BASH
-docker-compose run --rm phoenix_dev mix test
+docker-compose run --rm phoenix_dev sh run-checks.sh
 ```
 Get logs
 ```BASH
 docker-compose logs -f
 ```
-Connect to elixir container
+Connect to the container
 ```BASH
 docker-compose exec phoenix_dev bash
 ```

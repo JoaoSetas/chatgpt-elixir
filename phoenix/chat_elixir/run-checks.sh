@@ -2,11 +2,11 @@ MIX_ENV=test
 
 mix deps.get
 
+mix format
+
 mix hex.audit
 
 MIX_ENV=dev mix dialyzer
-
-mix format
 
 mix credo list
 

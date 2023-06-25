@@ -11,15 +11,21 @@ defmodule ChatElixir.ChatGPT.Api do
   def completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
 
-    {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
-      HTTPoison.post(url, get_body(text, options), get_headers(),
-        timeout: 60_000,
-        recv_timeout: 60_000
-      )
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
+           HTTPoison.post(url, get_body(text, options), get_headers(),
+             timeout: 60_000,
+             recv_timeout: 60_000
+           ),
+         %{"choices" => [%{"text" => response} | _]} <- Jason.decode!(body) do
+      {:ok, response}
+    else
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, inspect(reason)}
 
-    %{"choices" => [%{"text" => response} | _]} = Jason.decode!(body)
-
-    response
+      {:ok, %HTTPoison.Response{body: body}} ->
+        %{"error" => %{"message" => message}} = Jason.decode!(body)
+        {:error, message}
+    end
   end
 
   @doc """
@@ -81,16 +87,20 @@ defmodule ChatElixir.ChatGPT.Api do
       "size" => "512x512"
     }
 
-    options = Map.merge(default_options, options)
+    body = default_options |> Map.merge(options) |> Jason.encode!()
 
-    body = Jason.encode!(options)
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
+           HTTPoison.post(url, body, get_headers(), timeout: 10_000, recv_timeout: 10_000),
+         %{"data" => [%{"url" => response} | _]} <- Jason.decode!(body) do
+      {:ok, response}
+    else
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, inspect(reason)}
 
-    {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
-      HTTPoison.post(url, body, get_headers(), timeout: 10_000, recv_timeout: 10_000)
-
-    %{"data" => [%{"url" => response} | _]} = Jason.decode!(body)
-
-    response
+      {:ok, %HTTPoison.Response{body: body}} ->
+        %{"error" => %{"message" => message}} = Jason.decode!(body)
+        {:error, message}
+    end
   end
 
   @doc """
@@ -104,9 +114,7 @@ defmodule ChatElixir.ChatGPT.Api do
       "model" => "text-embedding-ada-002"
     }
 
-    options = Map.merge(default_options, options)
-
-    body = Jason.encode!(options)
+    body = default_options |> Map.merge(options) |> Jason.encode!()
 
     {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
       HTTPoison.post(url, body, get_headers(), timeout: 60_000, recv_timeout: 60_000)
@@ -144,25 +152,20 @@ defmodule ChatElixir.ChatGPT.Api do
   end
 
   defp parse_chunk(chunk, resp) do
-    {chunk, done?} =
+    decoded =
       chunk
-      |> String.split("data:")
-      |> Enum.map(&String.trim/1)
-      |> Enum.reject(&(&1 == ""))
-      |> Enum.reduce({"", false}, fn trimmed, {chunk, is_done?} ->
-        case Jason.decode(trimmed) do
-          {:ok, %{"choices" => [%{"text" => text}]}} ->
-            {chunk <> text, is_done? or false}
+      |> String.slice(6..-3)
+      |> Jason.decode()
 
-          {:error, %{data: "[DONE]"}} ->
-            {chunk, is_done? or true}
-        end
-      end)
+    case decoded do
+      {:ok, %{"choices" => [%{"text" => text}]}} ->
+        {[text], resp}
 
-    if done? do
-      {[chunk], {:done, resp}}
-    else
-      {[chunk], resp}
+      {:error, %{data: "[DONE]"}} ->
+        {[""], {:done, resp}}
+
+      {:error, %{data: _}} ->
+        {[""], {:done, resp}}
     end
   end
 

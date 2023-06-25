@@ -62,6 +62,7 @@
     </div>
     <%= raw(
       ChatElixir.ChatGPT.Api.completion_html("Article about" <> @conn.query_params["question"])
+      |> elem(1)
     ) %>
   </div>
 </div>

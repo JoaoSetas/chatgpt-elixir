@@ -4,18 +4,17 @@ defmodule ChatElixir.ChatGPT.ApiTest do
   alias ChatElixir.ChatGPT.Api
 
   test "completion" do
-    assert text = Api.completion("This is a test")
+    assert {:ok, text} = Api.completion("This is a test")
     assert String.length(text) > 0
   end
 
   test "stream_completion" do
-    stream = Api.stream_completion("This is a test")
-    assert steam = Enum.take(stream, 1) |> List.first()
-    assert String.length(steam) > 0
+    stream = Api.stream_completion("Using html. This is a test")
+    assert [_ | _] = Enum.filter(stream, &String.contains?(&1, "</"))
   end
 
   test "image" do
-    assert url = Api.image("This is a test")
+    assert {:ok, url} = Api.image("This is a test")
     assert String.contains?(url, "https://")
   end
 

@@ -22,8 +22,13 @@ defmodule ChatElixirWeb.ArticleLive.Article do
     target = self()
 
     Task.start(fn ->
-      image = ChatGPT.Api.image("Simple photo about " <> question)
-      send(target, {:render_image, image})
+      case ChatGPT.Api.image("Simple photo about " <> question) do
+        {:ok, image} ->
+          send(target, {:render_image, image})
+
+        {:error, error} ->
+          send(target, {:render_error, error})
+      end
     end)
 
     new_type = if String.first(type) == nil, do: "Article", else: type
@@ -93,6 +98,10 @@ defmodule ChatElixirWeb.ArticleLive.Article do
 
   def handle_info({:render_image, image}, socket) do
     {:noreply, assign(socket, image: image)}
+  end
+
+  def handle_info({:render_error, error}, socket) do
+    {:noreply, socket |> put_flash(:error, error)}
   end
 
   def handle_info(_message, socket) do

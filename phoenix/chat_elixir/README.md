@@ -5,7 +5,7 @@
 git clone https://github.com/JoaoSetas/chatgpt-elixir.git
 ```
 ## Configuring .env
-Create the folder `.env` from the example
+Create the folder `.env` from the `.env.example`
 
 Get the `SECRET_KEY_BASE` with
 ```BASH
@@ -16,17 +16,17 @@ Start the containers
 ```BASH
 docker-compose up -d
 ```
-Now you should see the homepage in http://localhost:4000/
+Now you should see the app in http://localhost:4000/
 # Development Setup
-Test before commit
+Checks before commit
 ```BASH
-docker-compose run --rm phoenix_dev mix test
+docker-compose run --rm phoenix_dev sh run-checks.sh
 ```
 Get logs
 ```BASH
 docker-compose logs -f
 ```
-Connect to elixir container
+Connect to the container
 ```BASH
 docker-compose exec phoenix_dev bash
 ```
@@ -53,7 +53,7 @@ docker-compose run phoenix_dev sh run-checks.sh
 ```
 Debug tests (run inside a app in the container)
 ```BASH
-MIX_ENV=test iex -S mix test --trace
+docker-compose run --rm phoenix_dev bash -c "MIX_ENV=test iex -S mix test --trace"
 ```
 
 # Production
