@@ -51,6 +51,11 @@
       <img class="w-full h-80" src={@image} />
     </div>
   <% end %>
-
-  <%= raw(@stream) %>
+  <%= if @show_html do %>
+    <pre class="text-justify">
+      <%= "<div class=\"container\">" <> @stream %>
+    </pre>
+  <% else %>
+      <%= raw(@stream) %>
+  <% end %>
 </div>
