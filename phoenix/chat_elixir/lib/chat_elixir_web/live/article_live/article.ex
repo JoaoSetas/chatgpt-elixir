@@ -5,11 +5,12 @@ defmodule ChatElixirWeb.ArticleLive.Article do
 
   @impl true
   def mount(params, _session, socket) do
-    {:ok, default_assign(socket,
-        question: params["question"],
-        type: params["type"],
-        code: params["code"]
-    )}
+    {:ok,
+     default_assign(socket,
+       question: params["question"],
+       type: params["type"],
+       code: params["code"]
+     )}
   end
 
   @impl true
@@ -29,16 +30,16 @@ defmodule ChatElixirWeb.ArticleLive.Article do
     new_type = if String.first(type) == nil, do: "Article", else: type
 
     {:noreply,
-    assign(socket,
-        question: question,
-        type: type,
-        code: code,
-        state: %{"disabled" => "true"},
-        stream: "",
-        image: "",
-        show_html: false,
-        response_task: stream_response(new_type, question, code)
-    )
+     assign(socket,
+       question: question,
+       type: type,
+       code: code,
+       state: %{"disabled" => "true"},
+       stream: "",
+       image: "",
+       show_html: false,
+       response_task: stream_response(new_type, question, code)
+     )
      |> push_event("streaming_started", %{})
      |> push_patch(to: "/?" <> URI.encode_query(%{type: type, question: question, code: code}))}
   end
@@ -78,13 +79,13 @@ defmodule ChatElixirWeb.ArticleLive.Article do
     stream = socket.assigns.stream <> chunk
 
     {:noreply,
-    assign(socket, stream: stream)
+     assign(socket, stream: stream)
      |> push_event("streaming", %{})}
   end
 
   def handle_info({ref, _content}, socket) when socket.assigns.response_task.ref == ref do
     {:noreply,
-    assign(socket, state: %{})
+     assign(socket, state: %{})
      |> push_event("streaming_finished", %{})}
   end
 
@@ -101,16 +102,17 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   end
 
   defp default_assign(socket, assigns) do
-    assigns = %{
-      question: nil,
-      type: nil,
-      code: nil,
-      state: %{},
-      stream: "",
-      image: "",
-      show_html: false
-    }
-    |> Map.merge(Enum.into(assigns, %{}))
+    assigns =
+      %{
+        question: nil,
+        type: nil,
+        code: nil,
+        state: %{},
+        stream: "",
+        image: "",
+        show_html: false
+      }
+      |> Map.merge(Enum.into(assigns, %{}))
 
     assign(socket, assigns)
   end
