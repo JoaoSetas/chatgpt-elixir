@@ -8,8 +8,9 @@ name: Elixir CI
 on:
   push:
     branches: [ "main" ]
-  pull_request_target:
-    branches: [ "main" ]
+  pull_request:
+    paths-ignore:
+      - '*.md'
 
 env:
   working-directory: phoenix/chat_elixir
