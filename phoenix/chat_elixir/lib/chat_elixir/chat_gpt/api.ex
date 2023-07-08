@@ -8,6 +8,7 @@ defmodule ChatElixir.ChatGPT.Api do
 
   Returns the completion as a string.
   """
+  @spec completion(String.t(), map()) :: {:ok, String.t()} | {:error, HTTPoison.Error}
   def completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
 
@@ -19,8 +20,8 @@ defmodule ChatElixir.ChatGPT.Api do
          %{"choices" => [%{"text" => response} | _]} <- Jason.decode!(body) do
       {:ok, response}
     else
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, inspect(reason)}
+      {:error, %HTTPoison.Error{} = error} ->
+        {:error, error}
 
       {:ok, %HTTPoison.Response{body: body}} ->
         %{"error" => %{"message" => message}} = Jason.decode!(body)
@@ -33,6 +34,7 @@ defmodule ChatElixir.ChatGPT.Api do
 
   This function is the same as `completion/2` but returns a stream
   """
+  @spec stream_completion(String.t(), map()) :: Enumerable.t()
   def stream_completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
     body = get_body(text, Map.merge(options, %{"stream" => true}))
@@ -56,6 +58,8 @@ defmodule ChatElixir.ChatGPT.Api do
 
   This function is the same as `completion/2` but returns HTML
   """
+  @spec completion_html(String.t(), String.t(), map()) ::
+          {:ok, String.t()} | {:error, %HTTPoison.Error{}}
   def completion_html(text, starting_code \\ "<", options \\ %{}) do
     prompt = "Using html. #{text}\n#{starting_code}"
 
@@ -67,6 +71,7 @@ defmodule ChatElixir.ChatGPT.Api do
 
   This function is the same as `stream_completion/2` but returns HTML
   """
+  @spec stream_completion_html(String.t(), String.t(), map()) :: Enumerable.t()
   def stream_completion_html(text, starting_code \\ "<", options \\ %{}) do
     prompt = "Using html. #{text}\n#{starting_code}"
 
@@ -78,6 +83,7 @@ defmodule ChatElixir.ChatGPT.Api do
 
   Returns a link as string
   """
+  @spec image(String.t(), map()) :: {:ok, String.t()} | {:error, %HTTPoison.Error{}}
   def image(text, options \\ %{}) do
     url = "https://api.openai.com/v1/images/generations"
 
@@ -94,8 +100,8 @@ defmodule ChatElixir.ChatGPT.Api do
          %{"data" => [%{"url" => response} | _]} <- Jason.decode!(body) do
       {:ok, response}
     else
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, inspect(reason)}
+      {:error, %HTTPoison.Error{} = error} ->
+        {:error, error}
 
       {:ok, %HTTPoison.Response{body: body}} ->
         %{"error" => %{"message" => message}} = Jason.decode!(body)
@@ -106,6 +112,7 @@ defmodule ChatElixir.ChatGPT.Api do
   @doc """
   Returns a list of embeddings for the given text.
   """
+  @spec embeddings(String.t(), map()) :: [number()] | {:error, %HTTPoison.Error{}}
   def embeddings(text, options \\ %{}) do
     url = "https://api.openai.com/v1/embeddings"
 
