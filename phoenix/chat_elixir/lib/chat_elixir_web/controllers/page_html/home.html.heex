@@ -61,7 +61,7 @@
       <img {atrributes} alt="generated image" />
     </div>
     <%= raw(
-      ChatElixir.ChatGPT.Api.completion_html("Article about" <> @conn.query_params["question"])
+      ChatElixir.ChatGPT.Api.chat_completion("Article about" <> @conn.query_params["question"])
       |> elem(1)
     ) %>
   </div>

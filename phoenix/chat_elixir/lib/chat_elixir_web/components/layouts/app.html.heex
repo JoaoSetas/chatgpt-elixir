@@ -1,22 +1,27 @@
 <form id="search" phx-submit="search">
-  <header class="px-4 sm:px-6 lg:px-8 sticky top-0 z-20 bg-white">
+  <header class="px-2 sticky top-0 z-20 bg-white">
     <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
       <div class="flex items-center">
-        <a href="/" aria-label="Read more about Seminole tax hike">
-          <img src={~p"/images/logo.svg"} width="36" alt="phoenix logo" />
-        </a>
-        <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
-          v<%= Application.spec(:phoenix, :vsn) %>
-        </p>
         <div class="relative md:ml-2">
           <input type="submit" hidden />
+          <select
+            {@state}
+            id="model"
+            name="model"
+            class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 mr-1 w-22 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
+          >
+            <%= Phoenix.HTML.Form.options_for_select(
+              ["GTP 4": :"gpt-4", "GTP 3": :"gpt-3.5-turbo"],
+              @model
+            ) %>
+          </select>
           <input
             id="type"
             name="type"
             value={@type}
             type="text"
             {@state}
-            class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded py-2 w-40 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
+            class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 w-40 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
             placeholder="Article"
           /> about
           <input
@@ -25,7 +30,7 @@
             value={@question}
             type="text"
             {@state}
-            class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded py-2 md:w-96  text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
+            class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 md:w-96  text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
             placeholder="Topic"
             required
           />
@@ -68,7 +73,7 @@
         type="button"
         data-mdb-ripple="true"
         data-mdb-ripple-color="light"
-        class="fixed inline-block p-3 bg-red-400 text-white font-medium text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out bottom-5"
+        class="fixed inline-block p-2 py-3 bg-red-400 text-white font-medium text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out bottom-5"
         id="btn-show-html"
       >
         Show html

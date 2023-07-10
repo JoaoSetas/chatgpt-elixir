@@ -3,17 +3,98 @@ defmodule ChatElixir.ChatGPT.Api do
   This module is responsible for interacting with the OpenAI API.
   """
 
+  @type model :: :"gpt-4" | :"gpt-3.5-turbo"
+
+  @doc """
+  Completes the given `text` using chat mode
+
+  Returns the completion as a string.
+  """
+  @spec chat_completion(String.t(), model, map()) ::
+          {:ok, String.t()} | {:error, HTTPoison.Error} | {:error, String.t()}
+  def chat_completion(text, model \\ :"gpt-4", options \\ %{}) do
+    url = "https://api.openai.com/v1/chat/completions"
+
+    options =
+      Map.put(options, "messages", [
+        %{
+          "role" => "user",
+          "content" => remove_grouped_spaces(text)
+        }
+      ])
+
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
+           HTTPoison.post(url, get_body(model, options), get_headers(),
+             timeout: 60_000,
+             recv_timeout: 60_000
+           ),
+         %{"choices" => [%{"message" => %{"content" => content}} | _]} <- Jason.decode!(body) do
+      {:ok, content}
+    else
+      {:error, %HTTPoison.Error{} = error} ->
+        {:error, error}
+
+      {:ok, %HTTPoison.Response{body: body}} ->
+        %{"error" => %{"message" => message}} = Jason.decode!(body)
+        {:error, message}
+    end
+  end
+
+  @doc """
+  Completes the given `text` using chat mode.
+
+  This function is the same as `chat_completion/3` but returns a stream
+  """
+  @spec stream_chat_completion(String.t(), model, map()) :: Enumerable.t()
+  def stream_chat_completion(text, model \\ :"gpt-4", options \\ %{}) do
+    url = "https://api.openai.com/v1/chat/completions"
+
+    body =
+      get_body(
+        model,
+        Map.merge(options, %{
+          "stream" => true,
+          "messages" => [
+            %{
+              "role" => "user",
+              "content" => remove_grouped_spaces(text)
+            }
+          ]
+        })
+      )
+
+    Stream.resource(
+      fn ->
+        HTTPoison.post!(url, body, get_headers(),
+          stream_to: self(),
+          async: :once,
+          timeout: 60_000,
+          recv_timeout: 3_000
+        )
+      end,
+      &handle_async_response/1,
+      &close_async_response/1
+    )
+  end
+
   @doc """
   Completes the given `text`.
 
   Returns the completion as a string.
   """
-  @spec completion(String.t(), map()) :: {:ok, String.t()} | {:error, HTTPoison.Error}
+  @spec completion(String.t(), map()) ::
+          {:ok, String.t()} | {:error, HTTPoison.Error} | {:error, String.t()}
   def completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.post(url, get_body(text, options), get_headers(),
+           HTTPoison.post(
+             url,
+             get_body(
+               "text-davinci-003",
+               Map.put(options, "prompt", remove_grouped_spaces(text))
+             ),
+             get_headers(),
              timeout: 60_000,
              recv_timeout: 60_000
            ),
@@ -37,7 +118,12 @@ defmodule ChatElixir.ChatGPT.Api do
   @spec stream_completion(String.t(), map()) :: Enumerable.t()
   def stream_completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
-    body = get_body(text, Map.merge(options, %{"stream" => true}))
+
+    body =
+      get_body(
+        "text-davinci-003",
+        Map.merge(options, %{"stream" => true, "prompt" => remove_grouped_spaces(text)})
+      )
 
     Stream.resource(
       fn ->
@@ -54,41 +140,17 @@ defmodule ChatElixir.ChatGPT.Api do
   end
 
   @doc """
-  Completes the given `text`.
-
-  This function is the same as `completion/2` but returns HTML
-  """
-  @spec completion_html(String.t(), String.t(), map()) ::
-          {:ok, String.t()} | {:error, %HTTPoison.Error{}}
-  def completion_html(text, starting_code \\ "<", options \\ %{}) do
-    prompt = "Using html. #{text}\n#{starting_code}"
-
-    completion(text, Map.put(options, "prompt", prompt))
-  end
-
-  @doc """
-  Completes the given `text`.
-
-  This function is the same as `stream_completion/2` but returns HTML
-  """
-  @spec stream_completion_html(String.t(), String.t(), map()) :: Enumerable.t()
-  def stream_completion_html(text, starting_code \\ "<", options \\ %{}) do
-    prompt = "Using html. #{text}\n#{starting_code}"
-
-    stream_completion(text, Map.put(options, "prompt", prompt))
-  end
-
-  @doc """
   Generates a image from the given `text`
 
   Returns a link as string
   """
-  @spec image(String.t(), map()) :: {:ok, String.t()} | {:error, %HTTPoison.Error{}}
+  @spec image(String.t(), map()) ::
+          {:ok, String.t()} | {:error, HTTPoison.Error} | {:error, String.t()}
   def image(text, options \\ %{}) do
     url = "https://api.openai.com/v1/images/generations"
 
     default_options = %{
-      "prompt" => text,
+      "prompt" => remove_grouped_spaces(text),
       "n" => 1,
       "size" => "512x512"
     }
@@ -112,12 +174,12 @@ defmodule ChatElixir.ChatGPT.Api do
   @doc """
   Returns a list of embeddings for the given text.
   """
-  @spec embeddings(String.t(), map()) :: [number()] | {:error, %HTTPoison.Error{}}
+  @spec embeddings(String.t(), map()) :: [number()] | {:error, HTTPoison.Error}
   def embeddings(text, options \\ %{}) do
     url = "https://api.openai.com/v1/embeddings"
 
     default_options = %{
-      "input" => text,
+      "input" => remove_grouped_spaces(text),
       "model" => "text-embedding-ada-002"
     }
 
@@ -159,28 +221,33 @@ defmodule ChatElixir.ChatGPT.Api do
   end
 
   defp parse_chunk(chunk, resp) do
-    decoded =
-      chunk
-      |> String.slice(6..-3)
-      |> Jason.decode()
-
-    case decoded do
-      {:ok, %{"choices" => [%{"text" => text}]}} ->
-        {[text], resp}
-
-      {:error, %{data: "[DONE]"}} ->
-        {[""], {:done, resp}}
-
-      {:error, %{data: _}} ->
-        {[""], {:done, resp}}
-    end
+    chunk
+    |> String.replace("data: ", "")
+    |> String.split("\n\n", trim: true)
+    |> Enum.map(&Jason.decode/1)
+    |> Enum.reduce({[""], resp}, fn chunk, acc ->
+      {[new_text], resp} = handle_chunk(chunk, resp)
+      {[text], _} = acc
+      {[text <> new_text], resp}
+    end)
   end
 
-  defp get_body(text, options \\ []) do
+  defp handle_chunk({:ok, %{"choices" => [%{"text" => text}]}}, resp) do
+    {[text], resp}
+  end
+
+  defp handle_chunk({:ok, %{"choices" => [%{"delta" => %{"content" => text}}]}}, resp) do
+    {[text], resp}
+  end
+
+  defp handle_chunk(_, resp) do
+    {[""], {:done, resp}}
+  end
+
+  defp get_body(model, options) do
     %{
-      "prompt" => remove_grouped_spaces(text),
-      "model" => "text-davinci-003",
-      "max_tokens" => 2000,
+      "model" => model,
+      "max_tokens" => 2048,
       "temperature" => 0,
       "top_p" => 1,
       "frequency_penalty" => 0,
