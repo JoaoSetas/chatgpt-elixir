@@ -3,7 +3,7 @@
 Simple application using the ChatGPT API with the autocomplete model to generate HTML from promp. Like articles, blog posts, etc. Even some html forms with validations.
 A image is generated based on the second input box on the application.
 
-`First input` is for the style of the html
+`First input` is for the style of the html. Article seems to be the best option for almost every prompt.
 `Second input` is for what's the content about
 `Code input` is used to add more information like a piece of code
 
@@ -15,8 +15,8 @@ A image is generated based on the second input box on the application.
   * `First input` - Create login form
   * `Second input` - Create Users address with portugal cities select, postal code and phone number with pattern validation
 * Documentation for code
-  * `First input` - Documentation
-  * `Second input` - this code. With examples
+  * `First input` - Article
+  * `Second input` - With examples
   * `Code input` - [paste your code]
 
 <img src="gif_example.gif" width="600" height="300"/>
@@ -63,9 +63,9 @@ docker-compose exec phoenix_dev iex --sname console --cookie monster --remsh coo
 ```
 To debug in the iex put this in your code to break 
 ```elixir
-require IEx; IEx.pry
+dbg(variable)
 ```
 It needed in the iex this command recompiles any changes 
 ```elixir
-IEx.Helpers.recompile
+recompile
 ```

@@ -1,12 +1,13 @@
 defmodule ChatElixirWeb.ArticleLive.Article do
   use ChatElixirWeb, :live_view
 
-  alias ChatElixir.ChatGPT
+  alias ChatElixir.ChatGPT.Api
 
   @impl true
   def mount(params, _session, socket) do
     {:ok,
      default_assign(socket,
+       model: params["model"],
        question: params["question"],
        type: params["type"],
        code: params["code"]
@@ -14,11 +15,15 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   end
 
   @impl true
-  def handle_event("search", %{"question" => question, "type" => type, "code" => code}, socket) do
+  def handle_event(
+        "search",
+        %{"question" => question, "type" => type, "code" => code, "model" => model},
+        socket
+      ) do
     target = self()
 
     Task.start(fn ->
-      case ChatGPT.Api.image("Simple photo about " <> question) do
+      case Api.image("Simple photo about " <> question) do
         {:ok, image} ->
           send(target, {:render_image, image})
 
@@ -30,18 +35,18 @@ defmodule ChatElixirWeb.ArticleLive.Article do
     new_type = if String.first(type) == nil, do: "Article", else: type
 
     {:noreply,
-     assign(socket,
+     default_assign(socket,
+       model: model,
        question: question,
        type: type,
        code: code,
        state: %{"disabled" => "true"},
-       stream: "",
-       image: "",
-       show_html: false,
-       response_task: stream_response(new_type, question, code)
+       response_task: stream_response(new_type, question, code, model)
      )
      |> push_event("streaming_started", %{})
-     |> push_patch(to: "/?" <> URI.encode_query(%{type: type, question: question, code: code}))}
+     |> push_patch(
+       to: "/?" <> URI.encode_query(%{model: model, type: type, question: question, code: code})
+     )}
   end
 
   def handle_event("search", %{}, socket) do
@@ -52,15 +57,16 @@ defmodule ChatElixirWeb.ArticleLive.Article do
     {:noreply, assign(socket, show_html: !socket.assigns.show_html)}
   end
 
-  defp stream_response(type, question, code) do
+  defp stream_response(type, question, code, model) do
     target = self()
 
+    with_code = if String.first(code) == nil, do: "", else: ". For this"
+
     Task.Supervisor.async(StreamingText.TaskSupervisor, fn ->
-      stream =
-        ChatGPT.Api.stream_completion_html(
-          type <> " about " <> question <> ":\n" <> code,
-          "<div class=\"container\">"
-        )
+      prompt =
+        "Only responde with html. #{type} about #{question}#{with_code}:\n#{code}\n<div class=\"container\">"
+
+      stream = Api.stream_chat_completion(prompt, model)
 
       for chunk <- stream, into: <<>> do
         send(target, {:render_response_chunk, chunk})
@@ -104,6 +110,7 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   defp default_assign(socket, assigns) do
     assigns =
       %{
+        model: "gpt-4",
         question: nil,
         type: nil,
         code: nil,

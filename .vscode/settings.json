@@ -1,8 +1,10 @@
 {
-    "elixir.projectPath": "phoenix/chat_elixir",
-
-    "elixirLS.mixEnv": "dev",
+    "elixirLS.mixTarget": "phoenix/chat_elixir/mix.exs",
     "elixirLS.projectDir": "phoenix/chat_elixir",
-    "elixirLS.enableTestLenses": true,
-    "elixirLS.mixTarget": "mix.exs"
+    "search.exclude": {
+        "**/_build": true,
+        "**/.elixir_ls": true,
+        "**/deps": true
+    },
+    "elixirLS.mixEnv": "test"
 }

@@ -202,15 +202,15 @@
       display: none;
     }
 
-    @media only screen and (min-width: 600px) {
+    @media only screen and (min-width: 1020px) {
       #btn-show-html {
-        right: 36rem
+        left: 44rem
       }
     }
 
-    @media only screen and (max-width: 600px) {
+    @media only screen and (max-width: 1020px) {
       #btn-show-html {
-        left: 18rem
+        right: 2rem
       }
     }
   }

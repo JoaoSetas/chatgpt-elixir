@@ -8,10 +8,13 @@ mix hex.audit
 
 MIX_ENV=dev mix dialyzer
 
+echo "\e[42mPress enter to continue\e[0m"
+printf "%s"
+read ans
+
 mix credo list
 
 echo "\e[42mPress enter to continue\e[0m"
-
 printf "%s"
 read ans
 
