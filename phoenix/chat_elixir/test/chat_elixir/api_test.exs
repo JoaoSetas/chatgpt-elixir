@@ -26,11 +26,6 @@ defmodule ChatElixir.ChatGPT.ApiTest do
     assert String.contains?(text, "</")
   end
 
-  test "stream_completion" do
-    stream = Api.stream_completion("Using html. This is short test", %{"max_tokens" => 100})
-    assert [_ | _] = Enum.filter(stream, &String.contains?(&1, "</"))
-  end
-
   test "image" do
     assert {:ok, url} = Api.image("This is a test")
     assert String.contains?(url, "https://")

@@ -1,4 +1,4 @@
-# ChatGPT elixir
+# ChatGPT elixir 
 
 Simple application using the ChatGPT API with the autocomplete model to generate HTML from promp. Like articles, blog posts, etc. Even some html forms with validations.
 A image is generated based on the second input box on the application.
