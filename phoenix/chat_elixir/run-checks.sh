@@ -18,7 +18,7 @@ echo "\e[42mPress enter to continue\e[0m"
 printf "%s"
 read ans
 
-mix test
+mix test_local
 
 MIX_ENV=dev
 

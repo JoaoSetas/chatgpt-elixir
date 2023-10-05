@@ -82,6 +82,7 @@ defmodule ChatElixir.ChatGPT.Api do
 
   Returns the completion as a string.
   """
+  @deprecated "Use `chat_completion/2` instead"
   @spec completion(String.t(), map()) ::
           {:ok, String.t()} | {:error, HTTPoison.Error} | {:error, String.t()}
   def completion(text, options \\ %{}) do
@@ -115,13 +116,14 @@ defmodule ChatElixir.ChatGPT.Api do
 
   This function is the same as `completion/2` but returns a stream
   """
+  @deprecated "Use `stream_chat_completion/2` instead"
   @spec stream_completion(String.t(), map()) :: Enumerable.t()
   def stream_completion(text, options \\ %{}) do
     url = "https://api.openai.com/v1/completions"
 
     body =
       get_body(
-        "text-davinci-003",
+        "gpt-3.5-turbo-instruct",
         Map.merge(options, %{"stream" => true, "prompt" => remove_grouped_spaces(text)})
       )
 
