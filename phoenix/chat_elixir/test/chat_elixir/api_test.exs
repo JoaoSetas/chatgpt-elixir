@@ -4,8 +4,15 @@ defmodule ChatElixir.ChatGPT.ApiTest do
   alias ChatElixir.ChatGPT.Api
 
   test "chat_completion" do
+    messages = [
+      %{
+        "role" => "user",
+        "content" => "Using html. This is short test"
+      }
+    ]
+
     assert {:ok, text} =
-             Api.chat_completion("Using html. This is short test", :"gpt-4", %{
+             Api.chat_completion(messages, :"gpt-4", %{
                "max_tokens" => 100
              })
 
@@ -13,17 +20,19 @@ defmodule ChatElixir.ChatGPT.ApiTest do
   end
 
   test "stream_chat_completion" do
+    messages = [
+      %{
+        "role" => "user",
+        "content" => "Using html. This is short test"
+      }
+    ]
+
     stream =
-      Api.stream_chat_completion("Using html. This is short test", :"gpt-4", %{
+      Api.stream_chat_completion(messages, :"gpt-4", %{
         "max_tokens" => 100
       })
 
     assert [_ | _] = Enum.filter(stream, &String.contains?(&1, "</"))
-  end
-
-  test "completion" do
-    assert {:ok, text} = Api.completion("Using html. This is short test", %{"max_tokens" => 100})
-    assert String.contains?(text, "</")
   end
 
   test "image" do

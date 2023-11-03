@@ -60,6 +60,13 @@
       @apply px-0;
       @apply font-medium;
     }
+
+    nav {
+      @apply border-t;
+      @apply border-red-200;
+      @apply mt-4;
+    }
+
     input[type],select {
       @apply shadow;
       @apply appearance-none;
