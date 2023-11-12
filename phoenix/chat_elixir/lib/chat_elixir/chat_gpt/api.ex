@@ -20,7 +20,7 @@ defmodule ChatElixir.ChatGPT.Api do
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
            HTTPoison.post(url, get_body(model, options), get_headers(),
              timeout: 200_000,
-            recv_timeout: 200_000
+             recv_timeout: 200_000
            ),
          %{"choices" => [%{"message" => %{"content" => content}} | _]} <- Jason.decode!(body) do
       {:ok, content}

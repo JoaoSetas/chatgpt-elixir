@@ -1,7 +1,11 @@
 defmodule ChatElixir.TmpManager do
+  @moduledoc """
+  This module is responsible for managing the tmp directory.
+  """
   use GenServer
 
-  @every 10 * 1000 # 10 seconds
+  # 10 seconds
+  @every 10 * 1000
   @tmp_path "tmp/"
   @lifetime_in_hours 1
 
@@ -12,16 +16,17 @@ defmodule ChatElixir.TmpManager do
   @doc """
   Write content to a file in the tmp directory.
   """
-  @spec write(String.t(),  iodata()) :: :ok
+  @spec write(String.t(), iodata()) :: :ok
   def write(file_path, content) do
     GenServer.cast(__MODULE__, {:write, file_path, content})
   end
 
   @impl true
   def init(state) do
-    state = [lifetime_in_hours: @lifetime_in_hours, max_files: nil, tmp_path: @tmp_path]
-    |> Keyword.merge(state)
-    |> Keyword.put(:tmp_path, String.trim(state[:tmp_path], "/") <> "/")
+    state =
+      [lifetime_in_hours: @lifetime_in_hours, max_files: nil, tmp_path: @tmp_path]
+      |> Keyword.merge(state)
+      |> Keyword.put(:tmp_path, String.trim(state[:tmp_path], "/") <> "/")
 
     # Schedule work to be performed on start
     schedule_work()
@@ -42,8 +47,10 @@ defmodule ChatElixir.TmpManager do
 
     File.ls!(state[:tmp_path])
     |> Enum.map(fn file ->
-      date = File.stat!(state[:tmp_path] <> file).ctime
-      |> NaiveDateTime.from_erl!()
+      date =
+        File.stat!(state[:tmp_path] <> file).ctime
+        |> NaiveDateTime.from_erl!()
+
       {file, date}
     end)
     |> Enum.sort(fn {_, date1}, {_, date2} -> date1 > date2 end)

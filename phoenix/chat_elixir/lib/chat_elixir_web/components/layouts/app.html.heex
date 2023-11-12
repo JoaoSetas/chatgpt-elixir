@@ -4,7 +4,7 @@
       <div class="flex items-center">
         <div class="relative md:ml-2">
           <input type="submit" hidden />
-            <%= if assigns[:model] do %>
+          <%= if assigns[:model] do %>
             <select
               {@state}
               id="model"
@@ -39,7 +39,7 @@
             required
           />
           <%= if assigns[:uploads] do %>
-            <.live_file_input upload={@uploads.images} phx-drop-target={@uploads.images.ref}/>
+            <.live_file_input upload={@uploads.images} phx-drop-target={@uploads.images.ref} />
           <% end %>
           <button type="submit" class="ml-2" {@state}>Search</button>
         </div>

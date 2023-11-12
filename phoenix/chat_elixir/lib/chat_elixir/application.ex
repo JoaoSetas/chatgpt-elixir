@@ -19,7 +19,8 @@ defmodule ChatElixir.Application do
       ChatElixirWeb.Endpoint,
       # Start a worker by calling: ChatElixir.Worker.start_link(arg)
       # {ChatElixir.Worker, arg}
-      {ChatElixir.TmpManager, lifetime_in_hours: 1, max_files: 10, tmp_path: "priv/static/uploads"}
+      {ChatElixir.TmpManager,
+       lifetime_in_hours: 1, max_files: 10, tmp_path: "priv/static/uploads"}
     ]
 
     children =

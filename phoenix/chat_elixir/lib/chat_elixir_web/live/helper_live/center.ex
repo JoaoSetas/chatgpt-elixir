@@ -14,7 +14,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
         stream: "",
         messages: [],
         uploaded_files: [],
-        show_html: false,
+        show_html: false
       }
       |> Map.merge(%{
         question: params["question"],
@@ -46,16 +46,15 @@ defmodule ChatElixirWeb.HelperLive.Center do
         %{"question" => question, "description" => description},
         socket
       ) do
-
     {uploaded_file, image} =
-    consume_uploaded_entries(socket, :images, fn %{path: path}, entry ->
-      dest = Path.join([:code.priv_dir(:chat_elixir), "static", "uploads", Path.basename(path)])
-      # The `static/uploads` directory must exist for `File.cp!/2`
-      # and MyAppWeb.static_paths/0 should contain uploads to work,.
-      File.cp!(path, dest)
-      {:ok, {entry.client_type, ~p"/uploads/#{Path.basename(dest)}"}}
-    end)
-    |>  handle_image(socket)
+      consume_uploaded_entries(socket, :images, fn %{path: path}, entry ->
+        dest = Path.join([:code.priv_dir(:chat_elixir), "static", "uploads", Path.basename(path)])
+        # The `static/uploads` directory must exist for `File.cp!/2`
+        # and MyAppWeb.static_paths/0 should contain uploads to work,.
+        File.cp!(path, dest)
+        {:ok, {entry.client_type, ~p"/uploads/#{Path.basename(dest)}"}}
+      end)
+      |> handle_image(socket)
 
     messages = format_message(question, description, image)
 
@@ -67,7 +66,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
        stream: "",
        messages: messages,
        show_html: false,
-       image: (if uploaded_file, do: Routes.static_url(socket, uploaded_file), else: nil),
+       image: if(uploaded_file, do: Routes.static_url(socket, uploaded_file), else: nil),
        response_task: stream_response(messages),
        uploaded_files: &(&1 ++ [uploaded_file])
      )
@@ -166,22 +165,25 @@ defmodule ChatElixirWeb.HelperLive.Center do
   end
 
   defp format_message(question, description, image) do
-    [system, %{"content" => content} = user]  = format_message(question, description, nil)
-    content = content ++
-    [
-      %{
-      "type" => "image_url",
-      "image_url" => %{
-        "url" => image,
-        "detail" => "low"
-      }
-    }]
+    [system, %{"content" => content} = user] = format_message(question, description, nil)
+
+    content =
+      content ++
+        [
+          %{
+            "type" => "image_url",
+            "image_url" => %{
+              "url" => image,
+              "detail" => "low"
+            }
+          }
+        ]
+
     [system, %{user | "content" => content}]
   end
 
   def handle_image([{type, uploaded_file}], socket) do
     image = Routes.static_url(socket, uploaded_file)
-    IO.inspect(image)
     # image =  [:code.priv_dir(:chat_elixir), "static", "uploads", Path.basename(uploaded_file)]
     # |> Path.join()
     # |> File.read!()
