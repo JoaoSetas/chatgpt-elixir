@@ -7,9 +7,9 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   def mount(params, _session, socket) do
     {:ok,
      default_assign(socket,
-       model: params["model"],
+       model: params["model"] || "gpt-4-1106-preview",
        question: params["question"],
-       type: params["type"],
+       type: params["type"] || "",
        code: params["code"]
      )}
   end
@@ -52,6 +52,11 @@ defmodule ChatElixirWeb.ArticleLive.Article do
 
   def handle_event("show_html", _value, socket) do
     {:noreply, assign(socket, show_html: !socket.assigns.show_html)}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("validate", _params, socket) do
+    {:noreply, socket}
   end
 
   def handle_event("page", %{"page" => page}, socket) do
@@ -148,7 +153,7 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   defp default_assign(socket, assigns) do
     assigns =
       %{
-        model: "gpt-4",
+        model: "gpt-4-1106-preview",
         question: nil,
         type: nil,
         code: nil,

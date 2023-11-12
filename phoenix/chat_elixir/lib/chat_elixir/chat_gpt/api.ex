@@ -3,7 +3,7 @@ defmodule ChatElixir.ChatGPT.Api do
   This module is responsible for interacting with the OpenAI API.
   """
 
-  @type model :: :"gpt-4" | :"gpt-3.5-turbo"
+  @type model :: :"gpt-4-vision-preview" | :"gpt-4-1106-preview" | :"gpt-3.5-turbo-1106"
 
   @doc """
   Completes chat from given `messages`
@@ -12,15 +12,15 @@ defmodule ChatElixir.ChatGPT.Api do
   """
   @spec chat_completion(list(), model, map()) ::
           {:ok, String.t()} | {:error, HTTPoison.Error} | {:error, String.t()}
-  def chat_completion(messages, model \\ :"gpt-4", options \\ %{}) do
+  def chat_completion(messages, model \\ :"gpt-4-1106-preview", options \\ %{}) do
     url = "https://api.openai.com/v1/chat/completions"
 
     options = Map.put(options, "messages", messages)
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
            HTTPoison.post(url, get_body(model, options), get_headers(),
-             timeout: 60_000,
-             recv_timeout: 60_000
+             timeout: 200_000,
+            recv_timeout: 200_000
            ),
          %{"choices" => [%{"message" => %{"content" => content}} | _]} <- Jason.decode!(body) do
       {:ok, content}
@@ -40,7 +40,7 @@ defmodule ChatElixir.ChatGPT.Api do
   This function is the same as `chat_completion/3` but returns a stream
   """
   @spec stream_chat_completion(list(), model, map()) :: Enumerable.t()
-  def stream_chat_completion(messages, model \\ :"gpt-4", options \\ %{}) do
+  def stream_chat_completion(messages, model \\ :"gpt-4-1106-preview", options \\ %{}) do
     url = "https://api.openai.com/v1/chat/completions"
 
     body =
@@ -57,8 +57,8 @@ defmodule ChatElixir.ChatGPT.Api do
         HTTPoison.post!(url, body, get_headers(),
           stream_to: self(),
           async: :once,
-          timeout: 60_000,
-          recv_timeout: 3_000
+          timeout: 200_000,
+          recv_timeout: 200_000
         )
       end,
       &handle_async_response/1,
@@ -77,15 +77,17 @@ defmodule ChatElixir.ChatGPT.Api do
     url = "https://api.openai.com/v1/images/generations"
 
     default_options = %{
+      "model" => "dall-e-3",
       "prompt" => remove_grouped_spaces(text),
       "n" => 1,
-      "size" => "512x512"
+      "size" => "1024x1024",
+      "style" => "natural"
     }
 
     body = default_options |> Map.merge(options) |> Jason.encode!()
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.post(url, body, get_headers(), timeout: 10_000, recv_timeout: 10_000),
+           HTTPoison.post(url, body, get_headers(), timeout: 20_000, recv_timeout: 20_000),
          %{"data" => [%{"url" => response} | _]} <- Jason.decode!(body) do
       {:ok, response}
     else

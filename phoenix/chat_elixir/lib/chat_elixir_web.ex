@@ -17,11 +17,11 @@ defmodule ChatElixirWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  def static_paths, do: ~w(assets fonts uploads images favicon.ico robots.txt)
 
   def router do
     quote do
-      use Phoenix.Router, helpers: false
+      use Phoenix.Router, helpers: true
 
       # Import common connection and controller functions to use in pipelines
       import Plug.Conn
@@ -53,6 +53,8 @@ defmodule ChatElixirWeb do
     quote do
       use Phoenix.LiveView,
         layout: {ChatElixirWeb.Layouts, :app}
+
+      alias ChatElixirWeb.Router.Helpers, as: Routes
 
       unquote(html_helpers())
     end

@@ -1,29 +1,33 @@
-<form id="search" phx-submit="search">
+<form id="search" phx-submit="search" phx-change="validate">
   <header class="px-2 sticky top-0 z-20 bg-white">
     <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
       <div class="flex items-center">
         <div class="relative md:ml-2">
           <input type="submit" hidden />
-          <select
-            {@state}
-            id="model"
-            name="model"
-            class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 mr-1 w-22 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
-          >
-            <%= Phoenix.HTML.Form.options_for_select(
-              ["GTP 4": :"gpt-4", "GTP 3": :"gpt-3.5-turbo"],
-              @model
-            ) %>
-          </select>
-          <input
-            id="type"
-            name="type"
-            value={@type}
-            type="text"
-            {@state}
-            class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 w-40 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
-            placeholder="Article"
-          /> about
+            <%= if assigns[:model] do %>
+            <select
+              {@state}
+              id="model"
+              name="model"
+              class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 mr-1 w-22 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
+            >
+              <%= Phoenix.HTML.Form.options_for_select(
+                ["GTP 4": :"gpt-4-1106-preview", "GTP 3": :"gpt-3.5-turbo-1106"],
+                @model
+              ) %>
+            </select>
+          <% end %>
+          <%= if assigns[:type] do %>
+            <input
+              id="type"
+              name="type"
+              value={@type}
+              type="text"
+              {@state}
+              class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 w-40 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
+              placeholder="Article"
+            /> about
+          <% end %>
           <input
             id="question"
             name="question"
@@ -34,7 +38,10 @@
             placeholder="Topic"
             required
           />
-          <button type="submit" class="ml-2">Search</button>
+          <%= if assigns[:uploads] do %>
+            <.live_file_input upload={@uploads.images} phx-drop-target={@uploads.images.ref}/>
+          <% end %>
+          <button type="submit" class="ml-2" {@state}>Search</button>
         </div>
       </div>
     </div>
@@ -67,7 +74,6 @@
           </path>
         </svg>
       </button>
-
       <button
         phx-click="show_html"
         type="button"
