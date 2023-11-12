@@ -12,7 +12,7 @@ defmodule ChatElixirWeb.Endpoint do
   ]
 
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options], timeout: 60_000]
+    websocket: [connect_info: [session: @session_options], timeout: 200_000]
 
   # Serve at "/" the static files from "priv/static" directory.
   #

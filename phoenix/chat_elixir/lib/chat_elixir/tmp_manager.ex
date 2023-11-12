@@ -26,7 +26,7 @@ defmodule ChatElixir.TmpManager do
     state =
       [lifetime_in_hours: @lifetime_in_hours, max_files: nil, tmp_path: @tmp_path]
       |> Keyword.merge(state)
-      |> Keyword.put(:tmp_path, String.trim(state[:tmp_path], "/") <> "/")
+      |> Keyword.put(:tmp_path, "/" <> String.trim(state[:tmp_path], "/") <> "/")
 
     # Schedule work to be performed on start
     schedule_work()

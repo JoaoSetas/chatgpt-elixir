@@ -48,11 +48,11 @@ defmodule ChatElixirWeb.HelperLive.Center do
       ) do
     {uploaded_file, image} =
       consume_uploaded_entries(socket, :images, fn %{path: path}, entry ->
-        dest = Path.join([:code.priv_dir(:chat_elixir), "static", "uploads", Path.basename(path)])
+        dest = Path.join([:code.priv_dir(:chat_elixir), "static", "images", "uploads", Path.basename(path)])
         # The `static/uploads` directory must exist for `File.cp!/2`
         # and MyAppWeb.static_paths/0 should contain uploads to work,.
         File.cp!(path, dest)
-        {:ok, {entry.client_type, ~p"/uploads/#{Path.basename(dest)}"}}
+        {:ok, {entry.client_type, ~p"/images/uploads/#{Path.basename(dest)}"}}
       end)
       |> handle_image(socket)
 
@@ -135,7 +135,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
 
   defp stream_response(messages) do
     target = self()
-
+    IO.inspect(messages)
     Task.Supervisor.async(StreamingText.TaskSupervisor, fn ->
       stream = Api.stream_chat_completion(messages, :"gpt-4-vision-preview")
 
@@ -183,12 +183,13 @@ defmodule ChatElixirWeb.HelperLive.Center do
   end
 
   def handle_image([{type, uploaded_file}], socket) do
-    image = Routes.static_url(socket, uploaded_file)
-    # image =  [:code.priv_dir(:chat_elixir), "static", "uploads", Path.basename(uploaded_file)]
+    image = String.replace(Routes.static_url(socket, uploaded_file), ":443", "")
+    {uploaded_file, image}
+    # image =  [:code.priv_dir(:chat_elixir), "static", "images", "uploads", Path.basename(uploaded_file)]
     # |> Path.join()
     # |> File.read!()
     # |> Base.encode64()
-    {uploaded_file, "data:#{type};base64,#{image}"}
+    # {uploaded_file, "data:#{type};base64,#{image}"}
   end
 
   def handle_image([], _socket), do: {nil, nil}

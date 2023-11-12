@@ -20,7 +20,7 @@ defmodule ChatElixir.Application do
       # Start a worker by calling: ChatElixir.Worker.start_link(arg)
       # {ChatElixir.Worker, arg}
       {ChatElixir.TmpManager,
-       lifetime_in_hours: 1, max_files: 10, tmp_path: "priv/static/uploads"}
+       lifetime_in_hours: 1, max_files: 10, tmp_path: "/" <> Path.join([:code.priv_dir(:chat_elixir), "static", "images", "uploads"])}
     ]
 
     children =
