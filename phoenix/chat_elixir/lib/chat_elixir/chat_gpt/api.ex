@@ -3,30 +3,24 @@ defmodule ChatElixir.ChatGPT.Api do
   This module is responsible for interacting with the OpenAI API.
   """
 
-  @type model :: :"gpt-4" | :"gpt-3.5-turbo"
+  @type model :: :"gpt-4-vision-preview" | :"gpt-4-1106-preview" | :"gpt-3.5-turbo-1106"
 
   @doc """
-  Completes the given `text` using chat mode
+  Completes chat from given `messages`
 
   Returns the completion as a string.
   """
-  @spec chat_completion(String.t(), model, map()) ::
+  @spec chat_completion(list(), model, map()) ::
           {:ok, String.t()} | {:error, HTTPoison.Error} | {:error, String.t()}
-  def chat_completion(text, model \\ :"gpt-4", options \\ %{}) do
+  def chat_completion(messages, model \\ :"gpt-4-1106-preview", options \\ %{}) do
     url = "https://api.openai.com/v1/chat/completions"
 
-    options =
-      Map.put(options, "messages", [
-        %{
-          "role" => "user",
-          "content" => remove_grouped_spaces(text)
-        }
-      ])
+    options = Map.put(options, "messages", messages)
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
            HTTPoison.post(url, get_body(model, options), get_headers(),
-             timeout: 60_000,
-             recv_timeout: 60_000
+             timeout: 200_000,
+             recv_timeout: 200_000
            ),
          %{"choices" => [%{"message" => %{"content" => content}} | _]} <- Jason.decode!(body) do
       {:ok, content}
@@ -41,12 +35,12 @@ defmodule ChatElixir.ChatGPT.Api do
   end
 
   @doc """
-  Completes the given `text` using chat mode.
+  Completes chat from given `messages`.
 
   This function is the same as `chat_completion/3` but returns a stream
   """
-  @spec stream_chat_completion(String.t(), model, map()) :: Enumerable.t()
-  def stream_chat_completion(text, model \\ :"gpt-4", options \\ %{}) do
+  @spec stream_chat_completion(list(), model, map()) :: Enumerable.t()
+  def stream_chat_completion(messages, model \\ :"gpt-4-1106-preview", options \\ %{}) do
     url = "https://api.openai.com/v1/chat/completions"
 
     body =
@@ -54,12 +48,7 @@ defmodule ChatElixir.ChatGPT.Api do
         model,
         Map.merge(options, %{
           "stream" => true,
-          "messages" => [
-            %{
-              "role" => "user",
-              "content" => remove_grouped_spaces(text)
-            }
-          ]
+          "messages" => messages
         })
       )
 
@@ -68,72 +57,8 @@ defmodule ChatElixir.ChatGPT.Api do
         HTTPoison.post!(url, body, get_headers(),
           stream_to: self(),
           async: :once,
-          timeout: 60_000,
-          recv_timeout: 3_000
-        )
-      end,
-      &handle_async_response/1,
-      &close_async_response/1
-    )
-  end
-
-  @doc """
-  Completes the given `text`.
-
-  Returns the completion as a string.
-  """
-  @deprecated "Use `chat_completion/2` instead"
-  @spec completion(String.t(), map()) ::
-          {:ok, String.t()} | {:error, HTTPoison.Error} | {:error, String.t()}
-  def completion(text, options \\ %{}) do
-    url = "https://api.openai.com/v1/completions"
-
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.post(
-             url,
-             get_body(
-               "text-davinci-003",
-               Map.put(options, "prompt", remove_grouped_spaces(text))
-             ),
-             get_headers(),
-             timeout: 60_000,
-             recv_timeout: 60_000
-           ),
-         %{"choices" => [%{"text" => response} | _]} <- Jason.decode!(body) do
-      {:ok, response}
-    else
-      {:error, %HTTPoison.Error{} = error} ->
-        {:error, error}
-
-      {:ok, %HTTPoison.Response{body: body}} ->
-        %{"error" => %{"message" => message}} = Jason.decode!(body)
-        {:error, message}
-    end
-  end
-
-  @doc """
-  completes the given `text`.
-
-  This function is the same as `completion/2` but returns a stream
-  """
-  @deprecated "Use `stream_chat_completion/2` instead"
-  @spec stream_completion(String.t(), map()) :: Enumerable.t()
-  def stream_completion(text, options \\ %{}) do
-    url = "https://api.openai.com/v1/completions"
-
-    body =
-      get_body(
-        "gpt-3.5-turbo-instruct",
-        Map.merge(options, %{"stream" => true, "prompt" => remove_grouped_spaces(text)})
-      )
-
-    Stream.resource(
-      fn ->
-        HTTPoison.post!(url, body, get_headers(),
-          stream_to: self(),
-          async: :once,
-          timeout: 60_000,
-          recv_timeout: 3_000
+          timeout: 200_000,
+          recv_timeout: 200_000
         )
       end,
       &handle_async_response/1,
@@ -152,15 +77,17 @@ defmodule ChatElixir.ChatGPT.Api do
     url = "https://api.openai.com/v1/images/generations"
 
     default_options = %{
+      "model" => "dall-e-3",
       "prompt" => remove_grouped_spaces(text),
       "n" => 1,
-      "size" => "512x512"
+      "size" => "1024x1024",
+      "style" => "natural"
     }
 
     body = default_options |> Map.merge(options) |> Jason.encode!()
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.post(url, body, get_headers(), timeout: 10_000, recv_timeout: 10_000),
+           HTTPoison.post(url, body, get_headers(), timeout: 20_000, recv_timeout: 20_000),
          %{"data" => [%{"url" => response} | _]} <- Jason.decode!(body) do
       {:ok, response}
     else
@@ -249,7 +176,7 @@ defmodule ChatElixir.ChatGPT.Api do
   defp get_body(model, options) do
     %{
       "model" => model,
-      "max_tokens" => 2048,
+      "max_tokens" => 1000,
       "temperature" => 0,
       "top_p" => 1,
       "frequency_penalty" => 0,
