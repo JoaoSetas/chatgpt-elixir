@@ -16,9 +16,11 @@ defmodule ChatElixir.Application do
       {Finch, name: ChatElixir.Finch},
       {Task.Supervisor, name: StreamingText.TaskSupervisor},
       # Start the Endpoint (http/https)
-      ChatElixirWeb.Endpoint
+      ChatElixirWeb.Endpoint,
       # Start a worker by calling: ChatElixir.Worker.start_link(arg)
       # {ChatElixir.Worker, arg}
+      {ChatElixir.TmpManager,
+       lifetime_in_hours: 1, max_files: 10, tmp_path: "priv/static/uploads"}
     ]
 
     children =
