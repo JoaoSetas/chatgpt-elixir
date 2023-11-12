@@ -181,10 +181,11 @@ defmodule ChatElixirWeb.HelperLive.Center do
 
   def handle_image([{type, uploaded_file}], socket) do
     image = Routes.static_url(socket, uploaded_file)
-    image =  [:code.priv_dir(:chat_elixir), "static", "uploads", Path.basename(uploaded_file)]
-    |> Path.join()
-    |> File.read!()
-    |> Base.encode64()
+    IO.inspect(image)
+    # image =  [:code.priv_dir(:chat_elixir), "static", "uploads", Path.basename(uploaded_file)]
+    # |> Path.join()
+    # |> File.read!()
+    # |> Base.encode64()
     {uploaded_file, "data:#{type};base64,#{image}"}
   end
 
