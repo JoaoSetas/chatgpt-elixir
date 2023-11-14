@@ -21,7 +21,7 @@ defmodule ChatElixirWeb.Endpoint do
   plug Plug.Static,
     at: "/",
     from: :chat_elixir,
-    gzip: false,
+    gzip: true,
     only: ChatElixirWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the

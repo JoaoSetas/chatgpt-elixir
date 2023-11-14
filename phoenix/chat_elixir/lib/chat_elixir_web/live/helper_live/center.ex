@@ -23,12 +23,12 @@ defmodule ChatElixirWeb.HelperLive.Center do
 
     {:ok,
      assign(socket, assigns)
-     |> allow_upload(:images, accept: ~w(.jpg .jpeg .png), max_entries: 1)}
+     |> allow_upload(:images, accept: ~w(.jpg .jpeg .png), max_entries: 1, auto_upload: true)}
   end
 
   @impl Phoenix.LiveView
-  def handle_event("validate", %{"question" => question}, socket) do
-    {:noreply, assign(socket, question: question)}
+  def handle_event("validate", %{"question" => question, "description" => description}, socket) do
+    {:noreply, assign(socket, question: question, description: description)}
   end
 
   @impl Phoenix.LiveView
@@ -48,7 +48,15 @@ defmodule ChatElixirWeb.HelperLive.Center do
       ) do
     {uploaded_file, image} =
       consume_uploaded_entries(socket, :images, fn %{path: path}, entry ->
-        dest = Path.join([:code.priv_dir(:chat_elixir), "static", "images", "uploads", Path.basename(path)])
+        dest =
+          Path.join([
+            :code.priv_dir(:chat_elixir),
+            "static",
+            "images",
+            "uploads",
+            Path.basename(path)
+          ])
+
         # The `static/uploads` directory must exist for `File.cp!/2`
         # and MyAppWeb.static_paths/0 should contain uploads to work,.
         File.cp!(path, dest)
@@ -71,6 +79,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
        uploaded_files: &(&1 ++ [uploaded_file])
      )
      |> push_event("streaming_started", %{})
+     |> push_event("page-loading-start", %{})
      |> push_patch(
        to: "/helper?" <> URI.encode_query(%{question: question, description: description})
      )}
@@ -95,7 +104,8 @@ defmodule ChatElixirWeb.HelperLive.Center do
        show_html: false,
        response_task: stream_response(messages)
      )
-     |> push_event("streaming_started", %{})}
+     |> push_event("streaming_started", %{})
+     |> push_event("page-loading-start", %{})}
   end
 
   @impl true
@@ -104,6 +114,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
 
     {:noreply,
      assign(socket, stream: stream)
+     |> push_event("page-loading-stop", %{})
      |> push_event("streaming", %{})}
   end
 
@@ -135,7 +146,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
 
   defp stream_response(messages) do
     target = self()
-    IO.inspect(messages)
+
     Task.Supervisor.async(StreamingText.TaskSupervisor, fn ->
       stream = Api.stream_chat_completion(messages, :"gpt-4-vision-preview")
 
@@ -185,6 +196,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
   def handle_image([{type, uploaded_file}], socket) do
     image = String.replace(Routes.static_url(socket, uploaded_file), ":443", "")
     {uploaded_file, image}
+
     # image =  [:code.priv_dir(:chat_elixir), "static", "images", "uploads", Path.basename(uploaded_file)]
     # |> Path.join()
     # |> File.read!()
@@ -200,6 +212,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
       "content" => """
       You are a web designer.
       Design a complete website based on the user issue.
+      Detect what is the user issue and become a specialist in that issue.
       The user can give a image about the issue.
       Output the page content to help the user indentify problems.
       Add links between the content for more information.

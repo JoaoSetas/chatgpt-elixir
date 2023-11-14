@@ -18,15 +18,15 @@
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
 // Establish Phoenix Socket and LiveView configuration.
-import {Socket} from "phoenix"
-import {LiveSocket} from "phoenix_live_view"
+import { Socket } from "phoenix"
+import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}, timeout: 60000})
+let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, timeout: 60000 })
 
 // Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
+topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
@@ -50,11 +50,11 @@ window.addEventListener(`phx:streaming_finished`, streaming_finished);
 
 // The event listener callback function
 function streaming_started(_event) {
-  userScroll= false;
+  userScroll = false;
   autoScroll = false;
   scrollToTop();
 }
- 
+
 // The event listener callback function
 function streaming(_event) {
   scrollToBottom();
@@ -69,10 +69,10 @@ function streaming_finished(_event) {
 let mybutton = document.getElementById("btn-back-to-top");
 // When the user clicks on the button, scroll to the top of the document
 mybutton.addEventListener("click", scrollButton);
-let userScroll= false;
+let userScroll = false;
 let autoScroll = false;
 
-function scrollButton(){
+function scrollButton() {
   userScroll = false;
   scrollToTop();
   userScroll = true;
@@ -80,12 +80,12 @@ function scrollButton(){
 
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = function onscroll() {
-    if(autoScroll){
-        autoScroll = false;
-    }else{
-        userScroll= true;
-    }
-    scrollFunction();
+  if (autoScroll) {
+    autoScroll = false;
+  } else {
+    userScroll = true;
+  }
+  scrollFunction();
 };
 
 // When the user scrolls down 20px from the top of the document, show the button
@@ -102,7 +102,7 @@ function scrollFunction() {
 
 // When the user clicks on the button, scroll to the top of the document
 function scrollToTop() {
-  if(userScroll){
+  if (userScroll) {
     return;
   }
 
@@ -115,8 +115,8 @@ function scrollToTop() {
 }
 
 // Scroll to bottom
-function scrollToBottom(){
-  if(userScroll){
+function scrollToBottom() {
+  if (userScroll) {
     return;
   }
   autoScroll = true;
@@ -127,3 +127,67 @@ function scrollToBottom(){
 
   scrollFunction();
 }
+
+// Get the audio stream from the user's microphone
+navigator.mediaDevices.getUserMedia({ audio: true })
+  .then(function (stream) {
+    // Create a new MediaRecorder object to record the stream
+    let recorder = new MediaRecorder(stream);
+
+    // Create an array to store the recorded audio chunks
+    let chunks = [];
+
+    // When the recorder starts recording, log a message to the console
+    recorder.addEventListener('start', function () {
+      document.getElementById('question').value = "Recording started...  (press again to stop)";
+      document.getElementById("start-recording").classList.add("bg-red-800");
+      console.log('Recording started...');
+    });
+
+    // When data is available from the recorder, add it to the chunks array
+    recorder.addEventListener('dataavailable', function (event) {
+      chunks.push(event.data);
+    });
+
+    // When the recorder stops recording, create a new Blob from the chunks array
+    // and create a new URL for the Blob
+    recorder.addEventListener('stop', function () {
+      window.dispatchEvent(new Event("phx:page-loading-start"));
+      document.getElementById("start-recording").classList.remove("bg-red-800");
+      console.log('Recording stopped.');
+
+      let blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
+      let file = new File( [ blob ], "audio.ogg", { type: "audio/ogg"} );
+      let data = new FormData();
+      data.append('audio', file);
+
+      // Download the recorded audio to the server
+      fetch('/upload-audio', {
+        body: data,
+        credentials: 'same-origin',
+        method: "POST"
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("question").value = data.text;
+        window.dispatchEvent(new Event("phx:page-loading-stop"));
+      })
+      .catch(function(error) {
+        console.error('Error uploading audio:', error);
+        window.dispatchEvent(new Event("phx:page-loading-stop"));
+      });
+    });
+
+    // Start recording when the user clicks a button
+    document.getElementById('start-recording').addEventListener('click', function () {
+      if(recorder.state == "recording") {
+        recorder.stop();
+      }else {
+        recorder.start();
+      }
+    });
+
+  })
+  .catch(function (error) {
+    console.error('Error getting audio stream:', error);
+  });
