@@ -31,7 +31,7 @@ window.addEventListener("phx:page-loading-stop", hide_topbar)
 
 function show_topbar(info) {
   topbar.show(300)
-  if(info.detail.priority) {
+  if(info.detail && info.detail.priority) {
     topbar.inPriority = true;
   }
 }
@@ -41,7 +41,7 @@ function hide_topbar(info) {
     topbar.hide()
   }
 
-  if(info.detail.priority) {
+  if(info.detail && info.detail.priority) {
     topbar.inPriority = false;
     topbar.hide()
   }
@@ -158,7 +158,6 @@ navigator.mediaDevices.getUserMedia({ audio: true })
     recorder.addEventListener('start', function () {
       document.getElementById('question').value = "Recording started...  (press again to stop)";
       document.getElementById("start-recording").classList.add("bg-red-800");
-      console.log('Recording started...');
     });
 
     // When data is available from the recorder, add it to the chunks array
@@ -171,10 +170,11 @@ navigator.mediaDevices.getUserMedia({ audio: true })
     recorder.addEventListener('stop', function () {
       window.dispatchEvent(new Event("phx:page-loading-start"));
       document.getElementById("start-recording").classList.remove("bg-red-800");
-      console.log('Recording stopped.');
 
+      chunks = [];
+      
       let blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
-      let file = new File( [ blob ], "audio.ogg", { type: "audio/ogg"} );
+      let file = new File( [ blob ], Date.now() + "audio.ogg", { type: "audio/ogg"} );
       let data = new FormData();
       data.append('audio', file);
 
