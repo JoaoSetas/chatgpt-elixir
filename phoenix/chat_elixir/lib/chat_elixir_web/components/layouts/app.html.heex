@@ -39,9 +39,20 @@
             required
           />
           <%= if assigns[:uploads] do %>
-            <.live_file_input upload={@uploads.images} phx-drop-target={@uploads.images.ref} />
+            <.live_file_input
+              class="w-48"
+              upload={@uploads.images}
+              phx-drop-target={@uploads.images.ref}
+            />
           <% end %>
-          <button type="submit" class="ml-2" {@state}>Search</button>
+          <img
+            src={~p"/images/microphone-342.png"}
+            id="start-recording"
+            class="inline ml-6 p-2 bg-red-400 text-white font-medium text-xs leading-tight uppercase rounded-full shadow-md"
+            alt="micro"
+          />
+
+          <button type="submit" class="ml-10" {@state}>Search</button>
         </div>
       </div>
     </div>

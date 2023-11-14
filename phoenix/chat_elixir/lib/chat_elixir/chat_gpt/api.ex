@@ -18,7 +18,7 @@ defmodule ChatElixir.ChatGPT.Api do
     options = Map.put(options, "messages", messages)
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.post(url, get_body(model, options), get_headers(),
+           HTTPoison.post(url, get_body(model, options), get_headers_json(),
              timeout: 200_000,
              recv_timeout: 200_000
            ),
@@ -54,7 +54,7 @@ defmodule ChatElixir.ChatGPT.Api do
 
     Stream.resource(
       fn ->
-        HTTPoison.post!(url, body, get_headers(),
+        HTTPoison.post!(url, body, get_headers_json(),
           stream_to: self(),
           async: :once,
           timeout: 200_000,
@@ -64,6 +64,38 @@ defmodule ChatElixir.ChatGPT.Api do
       &handle_async_response/1,
       &close_async_response/1
     )
+  end
+
+  @doc """
+  Generates a text from the given `file` file
+  """
+  @spec speech_to_text(String.t(), String.t() | nil) ::
+          {:ok, String.t()} | {:error, HTTPoison.Error} | {:error, String.t()}
+  def speech_to_text(file, language \\ nil) do
+    url = "https://api.openai.com/v1/audio/transcriptions"
+
+    form_data =
+      [{:file, file}, {"model", "whisper-1"}] ++
+        if language != nil, do: [{"language", language}], else: []
+
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
+           HTTPoison.post(
+             url,
+             {:multipart, form_data},
+             get_headers_multipart(),
+             timeout: 200_000,
+             recv_timeout: 200_000
+           ),
+         %{"text" => text} <- Jason.decode!(body) do
+      {:ok, text}
+    else
+      {:error, %HTTPoison.Error{} = error} ->
+        {:error, error}
+
+      {:ok, %HTTPoison.Response{body: body}} ->
+        %{"error" => %{"message" => message}} = Jason.decode!(body)
+        {:error, message}
+    end
   end
 
   @doc """
@@ -87,7 +119,7 @@ defmodule ChatElixir.ChatGPT.Api do
     body = default_options |> Map.merge(options) |> Jason.encode!()
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.post(url, body, get_headers(), timeout: 20_000, recv_timeout: 20_000),
+           HTTPoison.post(url, body, get_headers_json(), timeout: 20_000, recv_timeout: 20_000),
          %{"data" => [%{"url" => response} | _]} <- Jason.decode!(body) do
       {:ok, response}
     else
@@ -115,7 +147,7 @@ defmodule ChatElixir.ChatGPT.Api do
     body = default_options |> Map.merge(options) |> Jason.encode!()
 
     {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
-      HTTPoison.post(url, body, get_headers(), timeout: 60_000, recv_timeout: 60_000)
+      HTTPoison.post(url, body, get_headers_json(), timeout: 60_000, recv_timeout: 60_000)
 
     %{"data" => [%{"embedding" => embeddings} | _]} = Jason.decode!(body)
 
@@ -186,10 +218,17 @@ defmodule ChatElixir.ChatGPT.Api do
     |> Jason.encode!()
   end
 
-  defp get_headers() do
+  defp get_headers_json() do
     [
       {"Authorization", "Bearer #{System.get_env("OPENAI_API_KEY")}"},
       {"Content-Type", "application/json"}
+    ]
+  end
+
+  defp get_headers_multipart() do
+    [
+      {"Authorization", "Bearer #{System.get_env("OPENAI_API_KEY")}"},
+      {"Content-Type", "multipart/form-data"}
     ]
   end
 

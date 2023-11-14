@@ -22,9 +22,11 @@ defmodule ChatElixirWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", ChatElixirWeb do
-  #   pipe_through :api
-  # end
+  scope "/upload-audio", ChatElixirWeb do
+    pipe_through :api
+
+    post "/", AudioController, :create
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:chat_elixir, :dev_routes) do
