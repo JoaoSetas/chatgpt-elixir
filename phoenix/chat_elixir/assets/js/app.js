@@ -24,11 +24,28 @@ import topbar from "../vendor/topbar"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, timeout: 60000 })
-
 // Show progress bar on live navigation and form submits
 topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
-window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
-window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
+window.addEventListener("phx:page-loading-start", show_topbar)
+window.addEventListener("phx:page-loading-stop", hide_topbar)
+
+function show_topbar(info) {
+  topbar.show(300)
+  if(info.detail.priority) {
+    topbar.inPriority = true;
+  }
+}
+
+function hide_topbar(info) {
+  if(!topbar.inPriority) {
+    topbar.hide()
+  }
+
+  if(info.detail.priority) {
+    topbar.inPriority = false;
+    topbar.hide()
+  }
+}
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()
