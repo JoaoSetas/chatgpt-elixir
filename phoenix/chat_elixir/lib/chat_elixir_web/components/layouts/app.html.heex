@@ -1,67 +1,48 @@
 <form id="search" phx-submit="search" phx-change="validate">
   <header class="px-2 sticky top-0 z-20 bg-white">
-    <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
-      <div class="flex items-center">
-        <div class="relative md:ml-2">
-          <input type="submit" hidden />
-          <%= if assigns[:model] do %>
-            <select
-              {@state}
-              id="model"
-              name="model"
-              class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 mr-1 w-22 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
-            >
-              <%= Phoenix.HTML.Form.options_for_select(
-                ["GTP 4": :"gpt-4-1106-preview", "GTP 3": :"gpt-3.5-turbo-1106"],
-                @model
-              ) %>
-            </select>
-          <% end %>
-          <%= if assigns[:type] do %>
-            <input
-              id="type"
-              name="type"
-              value={@type}
-              type="text"
-              {@state}
-              class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 w-40 text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
-              placeholder="Article"
-            /> about
-          <% end %>
-          <input
-            id="question"
-            name="question"
-            value={@question}
-            type="text"
-            {@state}
-            class="placeholder:italic placeholder:text-slate-400 shadow appearance-none border rounded my-1 md:w-96  text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
-            placeholder="Topic"
-            required
-          />
-          <%= if assigns[:uploads] do %>
-            <.live_file_input
-              class="w-48"
-              upload={@uploads.images}
-              phx-drop-target={@uploads.images.ref}
-            />
-          <% end %>
-          <img
-            src={~p"/images/microphone-342.png"}
-            id="start-recording"
-            class="inline ml-6 p-2 bg-red-400 text-white font-medium text-xs leading-tight uppercase rounded-full shadow-md"
-            alt="micro"
-          />
-
-          <button type="submit" class="ml-10" {@state}>Search</button>
-        </div>
+    <div class="flex items-center flex-wrap md:ml-2 justify-between border-b border-zinc-100 py-3 text-sm">
+      <input type="submit" hidden />
+      <input
+        id="question"
+        name="question"
+        value={@question}
+        type="text"
+        {@state}
+        class="placeholder:italic placeholder:text-slate-400 flex-auto xl:w-64 2xl:w-16 shadow appearance-none border rounded my-1  text-gray-800  leading-tight focus:ring-0 focus:shadow-outline focus:border-red-400"
+        placeholder="Topic"
+        required
+      />
+      <%= if assigns[:uploads] do %>
+        <.live_file_input
+          class="flex-none w-48 ml-2"
+          upload={@uploads.images}
+          phx-drop-target={@uploads.images.ref}
+        />
+      <% end %>
+      <img
+        src={~p"/images/microphone-342.png"}
+        id="start-recording"
+        class="flex-none mx-4 p-2 bg-red-400 text-white font-medium text-xs leading-tight uppercase rounded-full shadow-md"
+        alt="micro"
+      />
+      <div class="flex-auto w-44">
+        <button type="submit" class=" mx-5" {@state}>Search</button>
       </div>
+      <div class="xl:flex-auto w-96 flex-none"></div>
     </div>
   </header>
   <main class="px-4 sm:px-6 lg:px-8 xl:px-28 mt-10 relative">
     <div class="mx-auto max-w-xl lg:mx-0">
-      <.flash_group flash={@flash} />
-      <%= @inner_content %>
-      <!-- Back to top button -->
+      <button
+        phx-click="show_html"
+        type="button"
+        data-mdb-ripple="true"
+        data-mdb-ripple-color="light"
+        class="fixed inline-block p-2 py-3 bg-red-400 text-white font-medium text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out bottom-5"
+        id="btn-show-html"
+      >
+        Show html
+      </button>
       <button
         type="button"
         data-mdb-ripple="true"
@@ -85,16 +66,8 @@
           </path>
         </svg>
       </button>
-      <button
-        phx-click="show_html"
-        type="button"
-        data-mdb-ripple="true"
-        data-mdb-ripple-color="light"
-        class="fixed inline-block p-2 py-3 bg-red-400 text-white font-medium text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out bottom-5"
-        id="btn-show-html"
-      >
-        Show html
-      </button>
+      <.flash_group flash={@flash} />
+      <%= @inner_content %>
     </div>
   </main>
 </form>

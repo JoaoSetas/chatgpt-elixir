@@ -17,8 +17,8 @@ defmodule ChatElixirWeb.Router do
   scope "/", ChatElixirWeb do
     pipe_through :browser
 
-    live "/", ArticleLive.Article
-    live "/helper", HelperLive.Center
+    live "/article", ArticleLive.Article
+    live "/", HelperLive.Center
   end
 
   # Other scopes may use custom stacks.

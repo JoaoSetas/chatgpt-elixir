@@ -23,7 +23,12 @@ defmodule ChatElixirWeb.HelperLive.Center do
 
     {:ok,
      assign(socket, assigns)
-     |> allow_upload(:images, accept: ~w(.jpg .jpeg .png), max_entries: 1, auto_upload: true)}
+     |> allow_upload(:images,
+       accept: ~w(.jpg .jpeg .png),
+       max_entries: 1,
+       auto_upload: true,
+       progress: &handle_progress/3
+     )}
   end
 
   @impl Phoenix.LiveView
@@ -79,10 +84,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
        uploaded_files: &(&1 ++ [uploaded_file])
      )
      |> push_event("streaming_started", %{})
-     |> push_event("page-loading-start", %{})
-     |> push_patch(
-       to: "/helper?" <> URI.encode_query(%{question: question, description: description})
-     )}
+     |> push_event("page-loading-start", %{priority: true})}
   end
 
   def handle_event("page", %{"page" => page}, socket) do
@@ -102,10 +104,11 @@ defmodule ChatElixirWeb.HelperLive.Center do
        state: %{"disabled" => "true"},
        stream: "",
        show_html: false,
+       messages: messages,
        response_task: stream_response(messages)
      )
      |> push_event("streaming_started", %{})
-     |> push_event("page-loading-start", %{})}
+     |> push_event("page-loading-start", %{priority: true})}
   end
 
   @impl true
@@ -114,7 +117,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
 
     {:noreply,
      assign(socket, stream: stream)
-     |> push_event("page-loading-stop", %{})
+     |> push_event("page-loading-stop", %{priority: true})
      |> push_event("streaming", %{})}
   end
 
@@ -142,6 +145,14 @@ defmodule ChatElixirWeb.HelperLive.Center do
   @impl true
   def handle_params(_params, _value, socket) do
     {:noreply, socket}
+  end
+
+  defp handle_progress(:images, entry, socket) do
+    if entry.done? do
+      {:noreply, socket |> push_event("page-loading-stop", %{priority: true})}
+    else
+      {:noreply, socket |> push_event("page-loading-start", %{priority: true})}
+    end
   end
 
   defp stream_response(messages) do
@@ -194,14 +205,24 @@ defmodule ChatElixirWeb.HelperLive.Center do
   end
 
   def handle_image([{type, uploaded_file}], socket) do
-    image = String.replace(Routes.static_url(socket, uploaded_file), ":443", "")
-    {uploaded_file, image}
+    if System.get_env("MIX_ENV") != "dev" do
+      image = String.replace(Routes.static_url(socket, uploaded_file), ":443", "")
+      {uploaded_file, image}
+    else
+      image =
+        [
+          :code.priv_dir(:chat_elixir),
+          "static",
+          "images",
+          "uploads",
+          Path.basename(uploaded_file)
+        ]
+        |> Path.join()
+        |> File.read!()
+        |> Base.encode64()
 
-    # image =  [:code.priv_dir(:chat_elixir), "static", "images", "uploads", Path.basename(uploaded_file)]
-    # |> Path.join()
-    # |> File.read!()
-    # |> Base.encode64()
-    # {uploaded_file, "data:#{type};base64,#{image}"}
+      {uploaded_file, "data:#{type};base64,#{image}"}
+    end
   end
 
   def handle_image([], _socket), do: {nil, nil}
@@ -218,7 +239,8 @@ defmodule ChatElixirWeb.HelperLive.Center do
       Add links between the content for more information.
       At the end add navigation links, that must be inside a nav tag at the end of the page.
       Any link must contain a html attribute in this format `phx-click="page" phx-value-page="page_name_value"`.
-      The return must be the html content inside this `<div class=\"container\">`.
+      The output must be the inner html of `<div class="container">`.
+      Escape every double quote.
       Only output HTML without ```html at the beginning.
       No images.
       No forms.

@@ -7,46 +7,43 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   def mount(params, _session, socket) do
     {:ok,
      default_assign(socket,
-       model: params["model"] || "gpt-4-1106-preview",
        question: params["question"],
-       type: params["type"] || "",
-       code: params["code"]
+       description: params["description"]
      )}
   end
 
   @impl true
   def handle_event(
         "search",
-        %{"question" => question, "type" => type, "code" => code, "model" => model},
+        %{"question" => question, "description" => description},
         socket
       ) do
-    # target = self()
+    target = self()
 
-    # Task.start(fn ->
-    #   case Api.image("Simple photo without text about " <> question) do
-    #     {:ok, image} ->
-    #       send(target, {:render_image, image})
+    Task.start(fn ->
+      case Api.image("Simple photo without text about " <> question) do
+        {:ok, image} ->
+          send(target, {:render_image, image})
 
-    #     {:error, error} ->
-    #       send(target, {:render_error, error})
-    #   end
-    # end)
+        {:error, error} ->
+          send(target, {:render_error, error})
+      end
+    end)
 
-    messages = format_message(type, question, code)
+    messages = format_message(question, description)
 
     {:noreply,
      default_assign(socket,
-       model: model,
        question: question,
-       type: type,
-       code: code,
+       description: description,
        state: %{"disabled" => "true"},
        messages: messages,
-       response_task: stream_response(model, messages)
+       response_task: stream_response(messages)
      )
      |> push_event("streaming_started", %{})
+     |> push_event("page-loading-start", %{})
      |> push_patch(
-       to: "/?" <> URI.encode_query(%{model: model, type: type, question: question, code: code})
+       to: "/article?" <> URI.encode_query(%{question: question, description: description})
      )}
   end
 
@@ -60,17 +57,17 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   end
 
   def handle_event("page", %{"page" => page}, socket) do
-    # target = self()
+    target = self()
 
-    # Task.start(fn ->
-    #   case Api.image("Simple photo without text about " <> page) do
-    #     {:ok, image} ->
-    #       send(target, {:render_image, image})
+    Task.start(fn ->
+      case Api.image("Simple photo without text about " <> page) do
+        {:ok, image} ->
+          send(target, {:render_image, image})
 
-    #     {:error, error} ->
-    #       send(target, {:render_error, error})
-    #   end
-    # end)
+        {:error, error} ->
+          send(target, {:render_error, error})
+      end
+    end)
 
     Task.shutdown(socket.assigns.response_task)
 
@@ -89,16 +86,17 @@ defmodule ChatElixirWeb.ArticleLive.Article do
        stream: "",
        image: "",
        show_html: false,
-       response_task: stream_response(socket.assigns.model, messages)
+       response_task: stream_response(messages)
      )
-     |> push_event("streaming_started", %{})}
+     |> push_event("streaming_started", %{})
+     |> push_event("page-loading-start", %{})}
   end
 
-  defp stream_response(model, messages) do
+  defp stream_response(messages) do
     target = self()
 
     Task.Supervisor.async(StreamingText.TaskSupervisor, fn ->
-      stream = Api.stream_chat_completion(messages, model)
+      stream = Api.stream_chat_completion(messages, :"gpt-4-1106-preview")
 
       for chunk <- stream, into: <<>> do
         send(target, {:render_response_chunk, chunk})
@@ -118,7 +116,8 @@ defmodule ChatElixirWeb.ArticleLive.Article do
 
     {:noreply,
      assign(socket, stream: stream)
-     |> push_event("streaming", %{})}
+     |> push_event("streaming", %{})
+     |> push_event("page-loading-stop", %{})}
   end
 
   def handle_info({ref, content}, socket) when socket.assigns.response_task.ref == ref do
@@ -153,10 +152,8 @@ defmodule ChatElixirWeb.ArticleLive.Article do
   defp default_assign(socket, assigns) do
     assigns =
       %{
-        model: "gpt-4-1106-preview",
         question: nil,
-        type: nil,
-        code: nil,
+        description: nil,
         state: %{},
         stream: "",
         image: "",
@@ -168,28 +165,15 @@ defmodule ChatElixirWeb.ArticleLive.Article do
     assign(socket, assigns)
   end
 
-  defp format_message("website", question, code) do
-    with_code =
-      if String.first(code) == nil, do: "", else: ". More information about the website:\n"
+  defp format_message(question, description) do
+    with_description =
+      if String.first(description) == nil, do: "", else: ". More information about the website:\n"
 
     [
       system_role(),
       %{
         "role" => "user",
-        "content" => "#{question}#{with_code}#{code}"
-      }
-    ]
-  end
-
-  defp format_message(type, question, code) do
-    type = if String.first(type) == nil, do: "Article", else: type
-    with_code = if String.first(code) == nil, do: "", else: ". For this"
-
-    [
-      %{
-        "role" => "user",
-        "content" =>
-          "Only responde with html. #{type} about #{question}#{with_code}:\n#{code}\n<div class=\"container\">"
+        "content" => "#{question}#{with_description}#{description}"
       }
     ]
   end
