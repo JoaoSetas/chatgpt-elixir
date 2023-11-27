@@ -26,26 +26,9 @@ let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, timeout: 60000 })
 // Show progress bar on live navigation and form submits
 topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
-window.addEventListener("phx:page-loading-start", show_topbar)
-window.addEventListener("phx:page-loading-stop", hide_topbar)
-
-function show_topbar(info) {
-  topbar.show(300)
-  if(info.detail && info.detail.priority) {
-    topbar.inPriority = true;
-  }
-}
-
-function hide_topbar(info) {
-  if(!topbar.inPriority) {
-    topbar.hide()
-  }
-
-  if(info.detail && info.detail.priority) {
-    topbar.inPriority = false;
-    topbar.hide()
-  }
-}
+window.phxPageLoadingCount = 0
+window.addEventListener("phx:page-loading-start", _info => window.phxPageLoadingCount++ && topbar.show(300))
+window.addEventListener("phx:page-loading-stop", _info => window.phxPageLoadingCount && !--window.phxPageLoadingCount && topbar.hide())
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()
@@ -156,7 +139,8 @@ navigator.mediaDevices.getUserMedia({ audio: true })
 
     // When the recorder starts recording, log a message to the console
     recorder.addEventListener('start', function () {
-      document.getElementById('question').value = "Recording started...  (press again to stop)";
+      chunks = [];
+      document.getElementById('question').value = "Recording started... (press again to stop)";
       document.getElementById("start-recording").classList.add("bg-red-800");
     });
 
@@ -171,10 +155,8 @@ navigator.mediaDevices.getUserMedia({ audio: true })
       window.dispatchEvent(new Event("phx:page-loading-start"));
       document.getElementById("start-recording").classList.remove("bg-red-800");
 
-      chunks = [];
-      
       let blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
-      let file = new File( [ blob ], Date.now() + "audio.ogg", { type: "audio/ogg"} );
+      let file = new File([blob], "audio.ogg", { type: "audio/ogg" });
       let data = new FormData();
       data.append('audio', file);
 
@@ -184,22 +166,22 @@ navigator.mediaDevices.getUserMedia({ audio: true })
         credentials: 'same-origin',
         method: "POST"
       })
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("question").value = data.text;
-        window.dispatchEvent(new Event("phx:page-loading-stop"));
-      })
-      .catch(function(error) {
-        console.error('Error uploading audio:', error);
-        window.dispatchEvent(new Event("phx:page-loading-stop"));
-      });
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("question").value = data.text;
+          window.dispatchEvent(new Event("phx:page-loading-stop"));
+        })
+        .catch(function (error) {
+          console.error('Error uploading audio:', error);
+          window.dispatchEvent(new Event("phx:page-loading-stop"));
+        });
     });
 
     // Start recording when the user clicks a button
     document.getElementById('start-recording').addEventListener('click', function () {
-      if(recorder.state == "recording") {
+      if (recorder.state == "recording") {
         recorder.stop();
-      }else {
+      } else {
         recorder.start();
       }
     });

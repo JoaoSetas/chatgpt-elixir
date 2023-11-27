@@ -84,7 +84,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
        uploaded_files: &(&1 ++ [uploaded_file])
      )
      |> push_event("streaming_started", %{})
-     |> push_event("page-loading-start", %{priority: true})}
+     |> push_event("page-loading-start", %{})}
   end
 
   def handle_event("page", %{"page" => page}, socket) do
@@ -108,7 +108,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
        response_task: stream_response(messages)
      )
      |> push_event("streaming_started", %{})
-     |> push_event("page-loading-start", %{priority: true})}
+     |> push_event("page-loading-start", %{})}
   end
 
   @impl true
@@ -117,7 +117,7 @@ defmodule ChatElixirWeb.HelperLive.Center do
 
     {:noreply,
      assign(socket, stream: stream)
-     |> push_event("page-loading-stop", %{priority: true})
+     |> push_event("page-loading-stop", %{})
      |> push_event("streaming", %{})}
   end
 
@@ -149,9 +149,9 @@ defmodule ChatElixirWeb.HelperLive.Center do
 
   defp handle_progress(:images, entry, socket) do
     if entry.done? do
-      {:noreply, socket |> push_event("page-loading-stop", %{priority: true})}
+      {:noreply, socket |> push_event("page-loading-stop", %{})}
     else
-      {:noreply, socket |> push_event("page-loading-start", %{priority: true})}
+      {:noreply, socket |> push_event("page-loading-start", %{})}
     end
   end
 
